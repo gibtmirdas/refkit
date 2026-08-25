@@ -1,8 +1,16 @@
+import { useMemo } from 'react'
+
+const BASE = import.meta.env.BASE_URL
+
 interface Props {
   /** Printed number of the card, shown in the header badge. */
   n: number
   title: string
-  /** Static generated fragment — see sheets.ts / systems.ts. Never user input. */
+  /**
+   * Static generated fragment — see sheets.ts / systems.ts. Never user input.
+   * Image sources are written `@/…` and resolved against the deployed base
+   * path here, the same way Card.tsx builds the signal photo URLs.
+   */
   html: string
   /** Colour class: `th-a` … `th-f`, which sets `--tc`. */
   tone: string
@@ -28,6 +36,8 @@ export default function Sheet({
   open,
   onToggle,
 }: Props) {
+  const body = useMemo(() => html.split('src="@/').join(`src="${BASE}`), [html])
+
   return (
     <article className={`sheet ${tone}`}>
       <h3 className="sh-hd">
@@ -42,7 +52,7 @@ export default function Sheet({
 
       {open && (
         <div className="sh-open" id={domId}>
-          <div className="sh-body" dangerouslySetInnerHTML={{ __html: html }} />
+          <div className="sh-body" dangerouslySetInnerHTML={{ __html: body }} />
           <div className="sh-foot">
             <span>{footLeft}</span>
             <span>{footRight}</span>

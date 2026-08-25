@@ -64,6 +64,7 @@ bannière *Nouvelle version disponible* propose de recharger.
 | `src/signals.ts` | les 35 signaux : numéro de règle, nom FR / EN, description, mémo, famille, photos |
 | `src/sheets.ts` | les 37 fiches de poche : numéro, thème, titre, contenu HTML, texte de recherche |
 | `src/systems.ts` | les 29 fiches des systèmes à 3 et 4 officiels, même structure |
+| `public/systems/` | 8 figures découpées des deux manuels OPM (placement, zones, icing, tir de pénalité) |
 | `src/Card.tsx` | la carte de signal et son retournement |
 | `src/Sheet.tsx` | une fiche dépliable (fiches de poche et systèmes) |
 | `src/App.tsx` | état de l'app : section courante, paquet (ordre, faces), recherche et filtres des fiches |
@@ -78,7 +79,10 @@ Les descriptions françaises sont une traduction du texte officiel anglais. Les 
 Les fiches de poche sont tirées du règlement de jeu SEAF, des directives et aide-mémoires SIHF
 et du IIHF Official Rule Book 2026/27 ; elles reprennent la numérotation du jeu de cartes A7
 imprimé. Les fiches « systèmes » résument les deux *Officiating Procedure Manuals* de l'IIHF
-(v1.0, 05/2023), y compris le système de secours à 2 arbitres + 1 juge de lignes.
+(v1.0, 05/2023), y compris le système de secours à 2 arbitres + 1 juge de lignes ; huit
+figures y sont reprises telles quelles des manuels, avec la mention de leur numéro.
+Comme les photos de l'annexe I, elles restent la propriété de l'IIHF et sont ici à usage
+personnel de formation.
 En cas de doute, les documents officiels font foi.
 
 Raccourcis clavier — signaux : `M` mélanger, `R` tout retourner, `D` nom seul / nom + geste ;

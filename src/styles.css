@@ -1025,79 +1025,26 @@ kbd {
   }
 }
 
-/* ---- rink schematics inside a sheet ---- */
+/* ---- figures from the IIHF procedure manuals ---- */
 
-.sh-body svg.rink {
+.sh-body .fig {
+  margin: 2px 0 12px;
+}
+.sh-body .fig img {
   display: block;
   width: 100%;
-  max-width: 320px;
   height: auto;
-  margin: 2px auto 12px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: #f4f5f7; /* the figures are drawn on white: keep a light bed in both themes */
 }
-.rk-board {
-  fill: none;
-  stroke: var(--ink-3);
-  stroke-width: 1.6;
-}
-.rk-blue {
-  stroke: var(--blue);
-  stroke-width: 2.2;
-}
-.rk-red {
-  stroke: var(--brand);
-  stroke-width: 1.4;
-}
-.rk-circle {
-  fill: none;
-  stroke: var(--brand);
-  stroke-width: 1;
-  opacity: 0.5;
-}
-.rk-dot {
-  fill: var(--brand);
-  opacity: 0.7;
-}
-.rk-net {
-  fill: none;
-  stroke: var(--ink);
-  stroke-width: 1.6;
-}
-.rk-zone {
-  fill: var(--tc);
-  opacity: 0.18;
-  stroke: var(--tc);
-  stroke-width: 1;
-  stroke-dasharray: 3 2;
-}
-.rk-pos {
-  fill: var(--tc);
-}
-.rk-z1 {
-  fill: var(--tc);
-  opacity: 0.26;
-}
-.rk-z2 {
-  fill: var(--tc);
-  opacity: 0.13;
-}
-.rk-z3 {
-  fill: var(--ink-3);
-  opacity: 0.2;
-}
-.rk-z4 {
-  fill: var(--ink-3);
-  opacity: 0.1;
-}
-.rk-t {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 9px;
-  fill: var(--ink);
-}
-.rk-s {
-  font-family: var(--font-display);
-  font-size: 8px;
-  fill: var(--ink-3);
+.sh-body .fig figcaption {
+  margin-top: 5px;
+  font-family: 'Barlow Condensed', 'Arial Narrow', Arial, sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ink-3);
 }
 
 /* Three columns of headings in a comparison table would crush on a phone;

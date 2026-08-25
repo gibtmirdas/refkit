@@ -46,7 +46,9 @@ a collapsible menu in the sticky bar is the only navigation.
   `dangerouslySetInnerHTML`; nothing there comes from user input.
 - `src/systems.ts` — the officiating-systems cards, same shape as `sheets.ts` but keyed by
   `group` (`common` | `s3` | `s4`), each group carrying its own colour class. Generated the same
-  way; the rink schematics are inline SVG in the `html`, styled by the `.rk-*` classes.
+  way. Eight figures cropped from the OPM PDFs live in `public/systems/`; the generated `html`
+  references them as `src="@/systems/….png"` and `Sheet.tsx` resolves the `@/` prefix against
+  `import.meta.env.BASE_URL`, so the deployed base path is never baked into the data.
 - `src/Sheet.tsx` — presentational card used by **both** the sheets and the systems: coloured
   header button, body, footer. Takes `tone` (a `th-*` colour class), `domId` and the two footer
   labels; the open state is owned by `App.tsx`.
