@@ -73,18 +73,18 @@ body {
 }
 
 header.top {
-  padding: 26px 0 18px;
+  padding: 18px 0 12px;
   display: flex;
   flex-wrap: wrap;
-  gap: 16px;
-  align-items: flex-end;
+  gap: 6px 16px;
+  align-items: baseline;
   justify-content: space-between;
 }
 
 h1 {
   font-family: 'Barlow Condensed', 'Arial Narrow', Arial, sans-serif;
   font-weight: 700;
-  font-size: clamp(28px, 8vw, 50px);
+  font-size: clamp(22px, 5.4vw, 34px);
   line-height: 0.95;
   margin: 0;
   text-transform: uppercase;
@@ -93,14 +93,6 @@ h1 {
 h1 em {
   font-style: normal;
   color: var(--hot);
-}
-
-.sub {
-  font-size: 14px;
-  color: var(--ink-2);
-  margin: 9px 0 0;
-  max-width: 52ch;
-  line-height: 1.5;
 }
 
 .meta {
@@ -121,13 +113,13 @@ h1 em {
   top: 0;
   z-index: 20;
   margin: 0 -16px;
-  padding: 11px 16px calc(11px + env(safe-area-inset-left) * 0);
+  padding: 8px 16px;
   background: var(--ice);
   border-top: 1px solid var(--line-2);
   border-bottom: 1px solid var(--line);
   display: flex;
   flex-wrap: wrap;
-  gap: 10px 14px;
+  gap: 6px;
   align-items: center;
 }
 @supports (backdrop-filter: blur(9px)) {
@@ -137,32 +129,17 @@ h1 em {
   }
 }
 
-.grp {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.lbl {
-  font-family: 'Barlow Condensed', sans-serif;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-size: 11px;
-  color: var(--ink-3);
-}
-
 button {
   font-family: 'Barlow Condensed', 'Arial Narrow', Arial, sans-serif;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.07em;
-  font-size: 13px;
+  letter-spacing: 0.06em;
+  font-size: 12px;
   background: var(--card);
   color: var(--ink);
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  padding: 8px 12px;
+  padding: 7px 10px;
   cursor: pointer;
   line-height: 1.15;
   transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.12s;
@@ -177,71 +154,16 @@ button:focus-visible {
   outline: 2px solid var(--hot);
   outline-offset: 2px;
 }
+.tgl[aria-pressed='true'] {
+  background: var(--ink);
+  color: var(--ice);
+  border-color: var(--ink);
+}
+
 button.go {
   background: var(--ink);
   color: var(--ice);
   border-color: var(--ink);
-}
-
-.seg {
-  display: flex;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  overflow: hidden;
-}
-.seg button {
-  border: 0;
-  border-radius: 0;
-  padding: 8px 13px;
-}
-.seg button + button {
-  border-left: 1px solid var(--line);
-}
-.seg button[aria-pressed='true'] {
-  background: var(--ink);
-  color: var(--ice);
-}
-
-.chip {
-  border-radius: 100px;
-  padding: 7px 12px;
-  font-size: 12px;
-  white-space: nowrap;
-}
-.chip[aria-pressed='true'] {
-  background: var(--ink);
-  color: var(--ice);
-  border-color: var(--ink);
-}
-.dot {
-  display: inline-block;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  margin-right: 6px;
-  vertical-align: 1px;
-}
-.dot.hit {
-  background: var(--red);
-}
-.dot.stick {
-  background: var(--blue);
-}
-.dot.cond {
-  background: var(--green);
-}
-.dot.play {
-  background: var(--slate);
-}
-
-.count {
-  margin-left: auto;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 12px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--ink-3);
-  font-variant-numeric: tabular-nums;
 }
 
 /* ---- the deck ---- */
@@ -548,33 +470,20 @@ kbd {
    and the source block give way to the cards. */
 @media (max-width: 619px) {
   header.top {
-    padding: 16px 0 12px;
+    padding: 10px 0 8px;
   }
-  h1 {
-    font-size: 27px;
-  }
-  .sub,
   .meta,
   .kbdhint {
     display: none;
   }
   .bar {
-    gap: 8px 12px;
-    padding: 9px 16px;
+    gap: 5px;
+    padding: 7px 16px;
   }
-  .grp.filters {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    scrollbar-width: none;
-    width: 100%;
-    margin: 0 -16px;
-    padding: 0 16px;
-  }
-  .grp.filters::-webkit-scrollbar {
-    display: none;
-  }
-  .count {
-    margin-left: 0;
+  button {
+    padding: 7px 8px;
+    font-size: 11.5px;
+    letter-spacing: 0.04em;
   }
 }
 

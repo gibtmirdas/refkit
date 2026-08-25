@@ -15,14 +15,6 @@ export interface Signal {
   imgs: string[]
 }
 
-export const FAMILIES: { key: Family | 'all'; label: string }[] = [
-  { key: 'all', label: 'Toutes' },
-  { key: 'hit', label: 'Charges & coups' },
-  { key: 'stick', label: 'Crosse & obstruction' },
-  { key: 'cond', label: 'Conduite & jeu' },
-  { key: 'play', label: 'Jeu & lignes' },
-]
-
 export const SIGNALS: Signal[] = [
   {
     id: "24",

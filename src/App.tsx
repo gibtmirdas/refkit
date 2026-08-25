@@ -1,23 +1,18 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useRegisterSW } from 'virtual:pwa-register/react'
 import Card from './Card'
-import { FAMILIES, SIGNALS, type Family } from './signals'
+import { SIGNALS } from './signals'
 import { usePersisted } from './usePersisted'
 
 type Side = 'front' | 'back'
-type Filter = Family | 'all'
 
 export default function App() {
   const [order, setOrder] = useState<number[]>(() => SIGNALS.map((_, i) => i))
-  const [family, setFamily] = usePersisted<Filter>('hs.fam', 'all')
   const [side, setSide] = usePersisted<Side>('hs.side', 'front')
   const [showDesc, setShowDesc] = usePersisted<boolean>('hs.desc', true)
   const [flipped, setFlipped] = useState<Set<string>>(() => new Set())
 
-  const visible = useMemo(
-    () => order.map((i) => SIGNALS[i]).filter((s) => family === 'all' || s.family === family),
-    [order, family],
-  )
+  const visible = useMemo(() => order.map((i) => SIGNALS[i]), [order])
 
   const shuffle = useCallback(() => {
     setOrder((prev) => {
@@ -70,73 +65,37 @@ export default function App() {
       <div className="jersey" />
       <div className="wrap">
         <header className="top">
-          <div>
-            <h1>
-              Signaux de<br />l’<em>arbitre</em>
-            </h1>
-            <p className="sub">
-              Les 35 signaux officiels de l’annexe I du règlement IIHF 2026/27. Touchez une carte
-              pour la retourner : la photo seule au recto, le nom et le geste au verso.
-            </p>
-          </div>
+          <h1>
+            Signaux de l’<em>arbitre</em>
+          </h1>
           <div className="meta">
-            IIHF Official Rule Book
-            <br />
-            <b>2026/27 — Appendix I</b>
-            <br />
-            pp. 163–169
+            IIHF Rule Book <b>2026/27</b> · Appendix I
           </div>
         </header>
 
         <div className="bar">
-          <div className="grp">
-            <button className="go" onClick={shuffle}>
-              ↺ Mélanger
-            </button>
-            <button onClick={resetOrder}>Ordre du règlement</button>
-          </div>
-
-          <div className="grp">
-            <span className="lbl">Faces</span>
-            <div className="seg" role="group" aria-label="Orientation des cartes">
-              <button aria-pressed={side === 'front'} onClick={() => setSideAll('front')}>
-                Photos
-              </button>
-              <button aria-pressed={side === 'back'} onClick={() => setSideAll('back')}>
-                Réponses
-              </button>
-            </div>
-          </div>
-
-          <div className="grp">
-            <span className="lbl">Verso</span>
-            <div className="seg" role="group" aria-label="Contenu du verso">
-              <button aria-pressed={showDesc} onClick={() => setShowDesc(true)}>
-                Nom + geste
-              </button>
-              <button aria-pressed={!showDesc} onClick={() => setShowDesc(false)}>
-                Nom seul
-              </button>
-            </div>
-          </div>
-
-          <div className="grp filters" role="group" aria-label="Famille de signaux">
-            {FAMILIES.map((f) => (
-              <button
-                key={f.key}
-                className="chip"
-                aria-pressed={family === f.key}
-                onClick={() => setFamily(f.key)}
-              >
-                {f.key !== 'all' && <span className={`dot ${f.key}`} />}
-                {f.label}
-              </button>
-            ))}
-          </div>
-
-          <span className="count">
-            {visible.length} carte{visible.length > 1 ? 's' : ''}
-          </span>
+          <button className="go" onClick={shuffle} title="Mélanger le paquet (M)">
+            ↺ Mélanger
+          </button>
+          <button onClick={resetOrder} title="Revenir à l’ordre du règlement">
+            Ordre
+          </button>
+          <button
+            className="tgl"
+            aria-pressed={side === 'back'}
+            onClick={() => setSideAll(side === 'back' ? 'front' : 'back')}
+            title="Tout retourner côté réponse (R)"
+          >
+            Réponses
+          </button>
+          <button
+            className="tgl"
+            aria-pressed={showDesc}
+            onClick={() => setShowDesc(!showDesc)}
+            title="Description du geste au verso (D)"
+          >
+            Geste
+          </button>
         </div>
 
         <div className={showDesc ? 'grid' : 'grid hide-desc'}>
