@@ -15,10 +15,10 @@ export default defineConfig({
       includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
       manifest: {
         id: BASE,
-        name: "Signaux de l'arbitre — IIHF 2026/27",
-        short_name: 'Signaux',
+        name: "Arbitre hockey — signaux & fiches IIHF 2026/27",
+        short_name: 'Arbitre',
         description:
-          "Les 35 signaux officiels de l'annexe I du règlement IIHF 2026/27, en cartes à retourner. Fonctionne hors ligne.",
+          "Les 35 signaux officiels IIHF en cartes à retourner, et 37 fiches de poche SEAF / IIHF : pénalités, règles de jeu, procédures. Fonctionne hors ligne.",
         lang: 'fr',
         dir: 'ltr',
         start_url: BASE,

@@ -1,9 +1,15 @@
-# Signaux de l'arbitre — IIHF 2026/27
+# Arbitre hockey — signaux & fiches, IIHF 2026/27
 
-Application web installable (PWA) pour réviser les **35 signaux officiels** de l'annexe I du
-règlement IIHF 2026/27 : photo au recto, nom FR / EN et description du geste au verso.
-Mélange, filtres par famille, tout face photo ou tout face réponse. **Fonctionne entièrement
-hors ligne** une fois ouverte — utile dans une patinoire sans réseau.
+Application web installable (PWA) avec deux sections, au choix dans le menu de la barre :
+
+- **Signaux** — les **35 signaux officiels** de l'annexe I du règlement IIHF 2026/27 :
+  photo au recto, nom FR / EN et description du geste au verso. Mélange, tout face photo
+  ou tout face réponse.
+- **Fiches** — les **37 fiches de poche** SEAF / IIHF (pénalités et codes, règles de jeu,
+  procédures, équipement, gestion de match), dépliables et cherchables, dans la même
+  numérotation que le jeu de cartes A7 imprimé.
+
+**Fonctionne entièrement hors ligne** une fois ouverte — utile dans une patinoire sans réseau.
 
 React + TypeScript + Vite, service worker via `vite-plugin-pwa`, déployée sur GitHub Pages.
 
@@ -52,15 +58,22 @@ bannière *Nouvelle version disponible* propose de recharger.
 | Fichier | Rôle |
 | --- | --- |
 | `src/signals.ts` | les 35 signaux : numéro de règle, nom FR / EN, description, mémo, famille, photos |
-| `src/Card.tsx` | la carte et son retournement |
-| `src/App.tsx` | état du paquet : ordre, faces, filtres, persistance |
+| `src/sheets.ts` | les 37 fiches : numéro, thème, titre, contenu HTML, texte de recherche |
+| `src/Card.tsx` | la carte de signal et son retournement |
+| `src/Sheet.tsx` | une fiche dépliable |
+| `src/App.tsx` | état de l'app : section courante, paquet (ordre, faces), recherche et filtres des fiches |
 | `public/signals/` | les 38 photos extraites de l'annexe I |
 
 Les descriptions françaises sont une traduction du texte officiel anglais. Les mémos
 (`memo`) signalent les gestes qu'on confond : 44 derrière le genou / 57 sous le genou,
 60 et 80 identiques, 64 et 75 identiques.
 
-Raccourcis clavier : `M` mélanger, `R` tout retourner, `D` nom seul / nom + geste.
+Les fiches sont tirées du règlement de jeu SEAF, des directives et aide-mémoires SIHF et du
+IIHF Official Rule Book 2026/27 ; elles reprennent la numérotation du jeu de cartes A7 imprimé.
+En cas de doute, les documents officiels font foi.
+
+Raccourcis clavier — signaux : `M` mélanger, `R` tout retourner, `D` nom seul / nom + geste ;
+fiches : `/` chercher, `Esc` effacer.
 
 ## À propos des images
 
