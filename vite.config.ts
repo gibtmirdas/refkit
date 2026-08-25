@@ -2,9 +2,9 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
-// Published at https://gibtmirdas.github.io/hockeyref/ — the base must match the
+// Published at https://gibtmirdas.github.io/refkit/ — the base must match the
 // repository name, otherwise the service worker scope and the manifest are wrong.
-const BASE = '/hockeyref/'
+const BASE = '/refkit/'
 
 export default defineConfig({
   base: BASE,
@@ -15,18 +15,18 @@ export default defineConfig({
       includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
       manifest: {
         id: BASE,
-        name: "Arbitre hockey — signaux & fiches IIHF 2026/27",
-        short_name: 'Arbitre',
+        name: "RefKit — signaux & fiches de l'arbitre",
+        short_name: 'RefKit',
         description:
-          "Les 35 signaux officiels IIHF en cartes à retourner, et 37 fiches de poche SEAF / IIHF : pénalités, règles de jeu, procédures. Fonctionne hors ligne.",
+          "RefKit — les 35 signaux officiels IIHF en cartes à retourner, et 37 fiches de poche SEAF / IIHF : pénalités, règles de jeu, procédures. Fonctionne hors ligne.",
         lang: 'fr',
         dir: 'ltr',
         start_url: BASE,
         scope: BASE,
         display: 'standalone',
         orientation: 'portrait',
-        background_color: '#e9eef2',
-        theme_color: '#101821',
+        background_color: '#0d0d1a',
+        theme_color: '#0d0d1a',
         categories: ['sports', 'education'],
         icons: [
           { src: 'icons/icon-192.png', sizes: '192x192', type: 'image/png' },

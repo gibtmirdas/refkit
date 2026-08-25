@@ -1,54 +1,52 @@
-/* Signaux de l'arbitre — palette taken from the printed deck: ice greys, jersey
-   red, and one colour per family of signals. */
+/* RefKit — dark-only design system. The palette is taken from the Swiss Ice
+   Hockey Federation site (sihf.ch): a night ground, one signal red, and bright
+   accent blocks that carry near-black text. There is no light theme. */
 
 :root {
-  --ice: #e9eef2;
-  --card: #ffffff;
-  --ink: #101821;
-  --ink-2: #43535f;
-  --ink-3: #768895;
-  --line: #c9d5de;
-  --line-2: #e2e9ee;
-  --red: #9e2929;
-  --blue: #1c3873;
-  --green: #1c6b5c;
-  --slate: #3d4552;
-  --hot: #c02a1f;
-  /* one colour per family of pocket sheets, echoing the printed deck */
-  --th-a: #3d4552;
-  --th-b: #1c6b5c;
-  --th-c: #9e2929;
-  --th-d: #1c3873;
-  --th-e: #5b3a86;
-  --th-f: #8a5a1e;
-  --onband: #ffffff;
-  --shadow: 0 1px 2px rgba(16, 24, 33, 0.1), 0 8px 22px -12px rgba(16, 24, 33, 0.3);
-  --radius: 5px;
-}
+  /* ground */
+  --bg: #0d0d1a;
+  --surface: #1a1c2e;
+  --surface-2: #232640;
+  --line: #333545;
+  --line-2: #23253a;
+  --plate: #e9e9e9; /* photo bed: the rulebook shots are cut out on white */
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --ice: #0d1319;
-    --card: #18212a;
-    --ink: #e7eef4;
-    --ink-2: #a8b8c5;
-    --ink-3: #7b8b98;
-    --line: #2b3945;
-    --line-2: #222d38;
-    --red: #e0685a;
-    --blue: #8aa8e2;
-    --green: #4fb69e;
-    --slate: #a3b4c3;
-    --hot: #e4695b;
-    --th-a: #a3b4c3;
-    --th-b: #4fb69e;
-    --th-c: #e0685a;
-    --th-d: #8aa8e2;
-    --th-e: #b598e0;
-    --th-f: #d6a45f;
-    --onband: #0d1319;
-    --shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 10px 26px -14px rgba(0, 0, 0, 0.75);
-  }
+  /* text */
+  --ink: #f4f4f5;
+  --ink-2: #c4c9d5;
+  --ink-3: #8e95ab;
+
+  /* brand */
+  --brand: #fe2941; /* identity: wordmark, focus ring, accents */
+  --brand-deep: #d4153b; /* filled buttons — white on it clears AA, #fe2941 does not */
+  --brand-press: #8c0f2d;
+  --onbrand: #ffffff;
+  --onband: #0d0d1a; /* text laid on a bright accent band */
+
+  /* one accent per family of signals */
+  --red: #ff6557;
+  --blue: #6ecaff;
+  --green: #15cccf;
+  --slate: #c4c9d5;
+
+  /* one colour per family of pocket sheets */
+  --th-a: #c4c9d5;
+  --th-b: #15cccf;
+  --th-c: #ff6557;
+  --th-d: #6ecaff;
+  --th-e: #c9adff;
+  --th-f: #dcc391;
+
+  /* type */
+  --font-display: 'Barlow Condensed', 'Arial Narrow', Arial, sans-serif;
+  --font-body: 'Funnel Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  /* shape and depth */
+  --radius: 8px;
+  --radius-sm: 4px;
+  --radius-pill: 999px;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.55), 0 12px 30px -16px rgba(0, 0, 0, 0.85);
+  --ring: 2px solid var(--brand);
 }
 
 * {
@@ -57,9 +55,9 @@
 
 body {
   margin: 0;
-  background: var(--ice);
+  background: var(--bg);
   color: var(--ink);
-  font-family: 'Source Serif 4', Georgia, 'Times New Roman', serif;
+  font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
   overflow-x: hidden;
@@ -68,15 +66,15 @@ body {
 /* The referee's striped jersey, as a rule across the top of the app. */
 .jersey {
   height: 5px;
-  background: repeating-linear-gradient(90deg, var(--ink) 0 9px, transparent 9px 18px);
-  border-bottom: 1px solid var(--line);
+  background: repeating-linear-gradient(90deg, var(--ink-2) 0 9px, transparent 9px 18px);
+  border-bottom: 1px solid var(--line-2);
   position: relative;
 }
 .jersey::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, transparent 0 62%, var(--hot) 62% 70%, transparent 70%);
+  background: linear-gradient(90deg, transparent 0 62%, var(--brand) 62% 70%, transparent 70%);
 }
 
 .wrap {
@@ -86,7 +84,7 @@ body {
 }
 
 header.top {
-  padding: 18px 0 12px;
+  padding: 14px 0 12px;
   display: flex;
   flex-wrap: wrap;
   gap: 6px 16px;
@@ -94,8 +92,47 @@ header.top {
   justify-content: space-between;
 }
 
+/* ---- the RefKit lockup ---- */
+
+.brand {
+  flex: 0 0 100%;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 2px;
+}
+.mark {
+  flex: none;
+  width: 21px;
+  height: 21px;
+  display: block;
+}
+.wordmark {
+  font-family: var(--font-display);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  font-size: 21px;
+  line-height: 1;
+}
+.wordmark em {
+  font-style: normal;
+  color: var(--brand);
+}
+.tag {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.13em;
+  font-size: 10.5px;
+  color: var(--ink-3);
+  padding-left: 9px;
+  margin-left: 2px;
+  border-left: 1px solid var(--line);
+  line-height: 1.1;
+}
+
 h1 {
-  font-family: 'Barlow Condensed', 'Arial Narrow', Arial, sans-serif;
+  font-family: var(--font-display);
   font-weight: 700;
   font-size: clamp(22px, 5.4vw, 34px);
   line-height: 0.95;
@@ -105,11 +142,11 @@ h1 {
 }
 h1 em {
   font-style: normal;
-  color: var(--hot);
+  color: var(--brand);
 }
 
 .meta {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-display);
   text-transform: uppercase;
   letter-spacing: 0.11em;
   font-size: 12px;
@@ -127,7 +164,7 @@ h1 em {
   z-index: 20;
   margin: 0 -16px;
   padding: 8px 16px;
-  background: var(--ice);
+  background: var(--bg);
   border-top: 1px solid var(--line-2);
   border-bottom: 1px solid var(--line);
   display: flex;
@@ -137,46 +174,51 @@ h1 em {
 }
 @supports (backdrop-filter: blur(9px)) {
   .bar {
-    background: color-mix(in srgb, var(--ice) 90%, transparent);
+    background: color-mix(in srgb, var(--bg) 90%, transparent);
     backdrop-filter: blur(9px);
   }
 }
 
 button {
-  font-family: 'Barlow Condensed', 'Arial Narrow', Arial, sans-serif;
+  font-family: var(--font-display);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   font-size: 12px;
-  background: var(--card);
+  background: var(--surface);
   color: var(--ink);
   border: 1px solid var(--line);
-  border-radius: var(--radius);
-  padding: 7px 10px;
+  border-radius: var(--radius-pill);
+  padding: 7px 13px;
   cursor: pointer;
   line-height: 1.15;
   transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.12s;
 }
 button:hover {
+  background: var(--surface-2);
   border-color: var(--ink-3);
 }
 button:active {
   transform: translateY(1px);
 }
 button:focus-visible {
-  outline: 2px solid var(--hot);
+  outline: var(--ring);
   outline-offset: 2px;
 }
 .tgl[aria-pressed='true'] {
   background: var(--ink);
-  color: var(--ice);
+  color: var(--bg);
   border-color: var(--ink);
 }
 
 button.go {
-  background: var(--ink);
-  color: var(--ice);
-  border-color: var(--ink);
+  background: var(--brand-deep);
+  color: var(--onbrand);
+  border-color: var(--brand-deep);
+}
+button.go:hover {
+  background: var(--brand-press);
+  border-color: var(--brand-press);
 }
 
 /* ---- the deck ---- */
@@ -202,9 +244,9 @@ button.go {
   aspect-ratio: 63.5 / 91;
 }
 .card:focus-visible {
-  outline: 2px solid var(--hot);
+  outline: var(--ring);
   outline-offset: 3px;
-  border-radius: 8px;
+  border-radius: var(--radius);
 }
 .card:hover .face {
   border-color: var(--ink-3);
@@ -226,7 +268,7 @@ button.go {
   inset: 0;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
-  background: var(--card);
+  background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
@@ -262,7 +304,7 @@ button.go {
   align-items: center;
   justify-content: center;
   min-height: 0;
-  background: #f1f2f3;
+  background: var(--plate);
 }
 .pan {
   position: relative;
@@ -290,11 +332,11 @@ button.go {
   border-radius: 50%;
   display: grid;
   place-items: center;
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-display);
   font-weight: 700;
   font-size: 11px;
-  color: #fff;
-  background: #243040;
+  color: var(--ink);
+  background: var(--surface);
 }
 
 .band {
@@ -303,7 +345,7 @@ button.go {
   gap: 8px;
   padding: 7px 10px 6px;
   color: var(--onband);
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-display);
   text-transform: uppercase;
 }
 .band .r {
@@ -388,33 +430,33 @@ button.go {
 .memo {
   margin-top: 11px;
   padding: 7px 9px;
-  border-radius: 4px;
-  font-family: 'Barlow Condensed', sans-serif;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-display);
   font-weight: 600;
   font-size: 12px;
   line-height: 1.3;
-  background: var(--line-2);
+  background: var(--surface-2);
 }
 .hit .memo {
   color: var(--red);
-  background: color-mix(in srgb, var(--red) 13%, transparent);
+  background: color-mix(in srgb, var(--red) 18%, transparent);
 }
 .stick .memo {
   color: var(--blue);
-  background: color-mix(in srgb, var(--blue) 13%, transparent);
+  background: color-mix(in srgb, var(--blue) 18%, transparent);
 }
 .cond .memo {
   color: var(--green);
-  background: color-mix(in srgb, var(--green) 13%, transparent);
+  background: color-mix(in srgb, var(--green) 18%, transparent);
 }
 .play .memo {
   color: var(--slate);
-  background: color-mix(in srgb, var(--slate) 13%, transparent);
+  background: color-mix(in srgb, var(--slate) 18%, transparent);
 }
 
 .foot {
   padding: 6px 10px 7px;
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-display);
   font-size: 10.5px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -450,11 +492,11 @@ button.go {
   line-height: 1.5;
 }
 kbd {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-display);
   font-size: 12px;
   border: 1px solid var(--line);
   border-bottom-width: 2px;
-  border-radius: 3px;
+  border-radius: var(--radius-sm);
   padding: 1px 5px;
   color: var(--ink-2);
 }
@@ -471,9 +513,9 @@ kbd {
   align-items: center;
   gap: 10px;
   padding: 10px 12px;
-  background: var(--card);
+  background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: var(--radius);
   box-shadow: var(--shadow);
   font-size: 13px;
   max-width: calc(100vw - 24px);
@@ -486,8 +528,12 @@ kbd {
     padding: 10px 0 8px;
   }
   .meta,
+  .tag,
   .kbdhint {
     display: none;
+  }
+  .wordmark {
+    font-size: 19px;
   }
   .bar {
     gap: 5px;
@@ -525,9 +571,9 @@ kbd {
   z-index: 30;
   min-width: 268px;
   padding: 6px;
-  background: var(--card);
+  background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 7px;
+  border-radius: var(--radius);
   box-shadow: var(--shadow);
 }
 
@@ -538,23 +584,23 @@ kbd {
   box-sizing: border-box;
   cursor: pointer;
   padding: 8px 10px;
-  border-radius: 5px;
+  border-radius: var(--radius-sm);
   border-left: 3px solid transparent;
 }
 .menu-item:hover {
-  background: var(--line-2);
+  background: var(--surface-2);
 }
 .menu-item:focus-visible {
-  outline: 2px solid var(--hot);
+  outline: var(--ring);
   outline-offset: -2px;
 }
 .menu-item[aria-current='true'] {
-  border-left-color: var(--hot);
-  background: var(--line-2);
+  border-left-color: var(--brand);
+  background: var(--surface-2);
 }
 .mi-t {
   display: block;
-  font-family: 'Barlow Condensed', 'Arial Narrow', Arial, sans-serif;
+  font-family: var(--font-display);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -583,7 +629,7 @@ kbd {
   gap: 6px;
   font-size: 11.5px;
   padding: 5px 9px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
 }
 .th-chip .dot {
   width: 8px;
@@ -630,14 +676,14 @@ kbd {
   flex: 1 1 190px;
   min-width: 0;
   max-width: 420px;
-  background: var(--card);
+  background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: var(--radius);
-  padding: 0 8px;
+  border-radius: var(--radius-pill);
+  padding: 0 12px;
   color: var(--ink-3);
 }
 .find:focus-within {
-  border-color: var(--hot);
+  border-color: var(--brand);
 }
 .find svg {
   flex: none;
@@ -668,7 +714,7 @@ kbd {
 }
 
 .tally {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-display);
   font-size: 11.5px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -695,7 +741,7 @@ kbd {
 }
 
 .sheet {
-  background: var(--card);
+  background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
@@ -721,7 +767,7 @@ kbd {
   color: var(--onband);
 }
 .sh-hd button:focus-visible {
-  outline: 2px solid var(--hot);
+  outline: var(--ring);
   outline-offset: -3px;
 }
 .sh-n {
@@ -732,14 +778,14 @@ kbd {
   height: 22px;
   border: 1.5px solid color-mix(in srgb, var(--onband) 55%, transparent);
   border-radius: 50%;
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-display);
   font-weight: 700;
   font-size: 13px;
   font-variant-numeric: tabular-nums;
 }
 .sh-t {
   flex: 1 1 auto;
-  font-family: 'Barlow Condensed', 'Arial Narrow', Arial, sans-serif;
+  font-family: var(--font-display);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.03em;
@@ -768,7 +814,7 @@ kbd {
   padding: 6px 11px 7px;
   margin: 8px 2px 0;
   border-top: 1px solid var(--line-2);
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-display);
   font-size: 10.5px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -786,7 +832,7 @@ kbd {
 /* ---- generated content inside a sheet ---- */
 
 .sh-body h2 {
-  font-family: 'Barlow Condensed', 'Arial Narrow', Arial, sans-serif;
+  font-family: var(--font-display);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -820,7 +866,7 @@ kbd {
   color: var(--ink-3);
 }
 .sh-body .ref {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-display);
   font-size: 12px;
   letter-spacing: 0.04em;
   color: var(--ink-3);
@@ -844,16 +890,16 @@ kbd {
 .sh-body .warn {
   margin: 9px 0;
   padding: 8px 10px;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   border-left: 3px solid var(--tc);
-  background: color-mix(in srgb, var(--tc) 10%, transparent);
+  background: color-mix(in srgb, var(--tc) 16%, transparent);
   font-size: 13.5px;
 }
 .sh-body .box {
   margin: 0 0 8px;
   padding: 8px 10px;
-  border-radius: 4px;
-  background: var(--line-2);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
   font-size: 13.5px;
 }
 .sh-body .box2 {
@@ -872,7 +918,7 @@ kbd {
 }
 .sh-body table.t th {
   text-align: left;
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-display);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.07em;
@@ -897,7 +943,7 @@ kbd {
 .sh-body table.t.sm td:nth-child(2) {
   text-align: right;
   white-space: nowrap;
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-display);
   font-size: 12px;
   letter-spacing: 0.04em;
   color: var(--ink-3);
@@ -918,7 +964,7 @@ kbd {
   font-weight: 600;
 }
 .sh-body table.t .no {
-  color: var(--hot);
+  color: var(--red);
   font-weight: 600;
 }
 .sh-body table.t.tx td:first-child {
@@ -934,13 +980,13 @@ kbd {
 }
 .sh-body table.t.tx.sf td:first-child {
   width: 16%;
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-display);
   font-weight: 600;
   font-size: 13px;
 }
 .sh-body table.t.sig td.rn {
   width: 32px;
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-display);
   font-weight: 700;
   font-size: 14px;
   color: var(--tc);
@@ -958,7 +1004,7 @@ kbd {
   width: 24px;
   text-align: right;
   padding-right: 8px;
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-display);
   font-weight: 700;
   color: var(--tc);
   font-variant-numeric: tabular-nums;
@@ -998,17 +1044,17 @@ kbd {
   stroke-width: 2.2;
 }
 .rk-red {
-  stroke: var(--hot);
+  stroke: var(--brand);
   stroke-width: 1.4;
 }
 .rk-circle {
   fill: none;
-  stroke: var(--hot);
+  stroke: var(--brand);
   stroke-width: 1;
   opacity: 0.5;
 }
 .rk-dot {
-  fill: var(--hot);
+  fill: var(--brand);
   opacity: 0.7;
 }
 .rk-net {
@@ -1043,13 +1089,13 @@ kbd {
   opacity: 0.1;
 }
 .rk-t {
-  font-family: 'Barlow Condensed', 'Arial Narrow', Arial, sans-serif;
+  font-family: var(--font-display);
   font-weight: 700;
   font-size: 9px;
   fill: var(--ink);
 }
 .rk-s {
-  font-family: 'Barlow Condensed', 'Arial Narrow', Arial, sans-serif;
+  font-family: var(--font-display);
   font-size: 8px;
   fill: var(--ink-3);
 }

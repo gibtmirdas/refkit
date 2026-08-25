@@ -1,4 +1,4 @@
-# Arbitre hockey — signaux & fiches, IIHF 2026/27
+# RefKit — signaux & fiches de l'arbitre, IIHF 2026/27
 
 Application web installable (PWA) avec trois sections, au choix dans le menu de la barre :
 
@@ -21,7 +21,7 @@ React + TypeScript + Vite, service worker via `vite-plugin-pwa`, déployée sur 
 
 ```bash
 npm install
-npm run dev          # http://localhost:5173/hockeyref/
+npm run dev          # http://localhost:5173/refkit/
 ```
 
 ```bash
@@ -37,12 +37,12 @@ Le workflow `.github/workflows/deploy.yml` construit et publie `dist/` à chaque
 
 À faire une seule fois, dans le dépôt : **Settings → Pages → Build and deployment → Source :
 GitHub Actions**. Le site est ensuite publié sur
-<https://gibtmirdas.github.io/hockeyref/>.
+<https://gibtmirdas.github.io/refkit/>.
 
 Le chemin de base est fixé dans `vite.config.ts` :
 
 ```ts
-const BASE = '/hockeyref/'
+const BASE = '/refkit/'
 ```
 
 Il doit correspondre au nom du dépôt. Si le dépôt est renommé, changez cette constante —
@@ -68,6 +68,8 @@ bannière *Nouvelle version disponible* propose de recharger.
 | `src/Sheet.tsx` | une fiche dépliable (fiches de poche et systèmes) |
 | `src/App.tsx` | état de l'app : section courante, paquet (ordre, faces), recherche et filtres des fiches |
 | `public/signals/` | les 38 photos extraites de l'annexe I |
+| `src/styles.css` | le système visuel sombre : jetons de couleur, typographie, formes |
+| `brand/maskable.svg` | source de l'icône masquable (les PNG de `public/icons/` en sont tirés) |
 
 Les descriptions françaises sont une traduction du texte officiel anglais. Les mémos
 (`memo`) signalent les gestes qu'on confond : 44 derrière le genou / 57 sous le genou,
@@ -81,6 +83,23 @@ En cas de doute, les documents officiels font foi.
 
 Raccourcis clavier — signaux : `M` mélanger, `R` tout retourner, `D` nom seul / nom + geste ;
 fiches : `/` chercher, `Esc` effacer.
+
+## Identité visuelle
+
+Thème **sombre uniquement** — pas de variante claire. La palette reprend celle de
+[sihf.ch](https://www.sihf.ch/) : fond nuit `#0d0d1a`, surfaces `#1a1c2e`, rouge de marque
+`#fe2941`, et des blocs d'accent clairs qui portent un texte presque noir. Typographie
+*Funnel Sans* (la police de corps de la SIHF) et *Barlow Condensed* pour les titres.
+Tout est déclaré en jetons CSS dans `:root`, en tête de `src/styles.css`.
+
+Les icônes se régénèrent depuis les sources SVG :
+
+```bash
+rsvg-convert -w 192 -h 192 public/favicon.svg -o public/icons/icon-192.png
+rsvg-convert -w 512 -h 512 public/favicon.svg -o public/icons/icon-512.png
+rsvg-convert -w 180 -h 180 public/favicon.svg -o public/apple-touch-icon.png
+rsvg-convert -w 512 -h 512 brand/maskable.svg -o public/icons/maskable-512.png
+```
 
 ## À propos des images
 

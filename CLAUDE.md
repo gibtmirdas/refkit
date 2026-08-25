@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-`hockeyref` — a referee PWA with three sections: **Signaux**, a flash-card deck of the 35 official
+`refkit` (RefKit) — a referee PWA with three sections: **Signaux**, a flash-card deck of the 35 official
 signals of Appendix I of the IIHF Official Rule Book 2026/27; **Fiches**, 37 pocket cheat sheets
 (penalties, game rules, procedures, SEAF specifics) taken from the printed A7 deck; and
 **Systèmes**, 29 cards summarising the IIHF Officiating Procedure Manuals for the three- and
@@ -16,7 +16,7 @@ in French; the source comments are in English.
 
 ```bash
 npm install
-npm run dev        # dev server at http://localhost:5173/hockeyref/ — note the base path
+npm run dev        # dev server at http://localhost:5173/refkit/ — note the base path
 npm run typecheck  # tsc --noEmit
 npm run build      # typecheck, then vite build into dist/
 npm run preview    # serve dist/ — the ONLY way to exercise the service worker
@@ -64,19 +64,25 @@ a collapsible menu in the sticky bar is the only navigation.
   access wrapped in try/catch (private windows block storage). Order and `flipped` are deliberately
   *not* persisted.
 - `src/Card.tsx` — presentational only. Builds image URLs from `import.meta.env.BASE_URL`, so never
-  hardcode `/hockeyref/` in a path. Eager-loads the first 8 images, lazy for the rest.
-- `src/styles.css` — one stylesheet, CSS custom properties in `:root` with a
-  `prefers-color-scheme: dark` override. One accent colour per signal family (`--red`, `--blue`,
-  `--green`, `--slate`; the family key is also the card's CSS class) and one per sheet theme
-  (`--th-a` … `--th-f`, exposed to a sheet as `--tc` through the `th-*` class). Sheet content is
-  styled under `.sh-body`, which is the only place the generated HTML's class names
-  (`t`, `sm`, `tx`, `sig`, `codes`, `src`, `warn`, `box`, `ref`, `mut`) are used.
+  hardcode `/refkit/` in a path. Eager-loads the first 8 images, lazy for the rest.
+- `src/styles.css` — one stylesheet and the whole design system, as CSS custom properties in a
+  single `:root`. The theme is **dark only**: there is no light palette and no
+  `prefers-color-scheme` branch, so never reintroduce one. The palette is taken from sihf.ch —
+  ground `--bg` / `--surface` / `--surface-2`, text `--ink*`, brand `--brand` / `--brand-deep`,
+  and bright accent blocks that carry `--onband` (near-black) text. One accent per signal family
+  (`--red`, `--blue`, `--green`, `--slate`; the family key is also the card's CSS class) and one
+  per sheet theme (`--th-a` … `--th-f`, exposed to a sheet as `--tc` through the `th-*` class).
+  Type goes through `--font-display` (Barlow Condensed, uppercase) and `--font-body` (Funnel Sans);
+  do not write a font stack anywhere else. Shape goes through `--radius` (cards),
+  `--radius-sm` (inner boxes) and `--radius-pill` (every button, chip and the search field).
+  Sheet content is styled under `.sh-body`, which is the only place the generated HTML's class
+  names (`t`, `sm`, `tx`, `sig`, `codes`, `src`, `warn`, `box`, `ref`, `mut`) are used.
 - The `UpdateToast` component in `App.tsx` wires `useRegisterSW` from `virtual:pwa-register/react`
   to the "ready offline" / "new version" banner.
 
 ## Base path
 
-`BASE = '/hockeyref/'` in `vite.config.ts` must match the GitHub repository name. It feeds `base`,
+`BASE = '/refkit/'` in `vite.config.ts` must match the GitHub repository name. It feeds `base`,
 the manifest `id`/`start_url`/`scope`, and `import.meta.env.BASE_URL`. If the repo is renamed,
 change this constant, or the manifest and the service worker scope point elsewhere and installation
 fails.
@@ -93,7 +99,17 @@ first offline run.
 
 `.github/workflows/deploy.yml` builds and publishes `dist/` to GitHub Pages on every push to `main`
 (`configure-pages` with `enablement: true`, so no manual Pages setup is needed). Live at
-<https://gibtmirdas.github.io/hockeyref/>.
+<https://gibtmirdas.github.io/refkit/>.
+
+## Brand
+
+The app is **RefKit**. The name appears in `index.html` (title, `apple-mobile-web-app-title`),
+the manifest in `vite.config.ts` (`name`, `short_name`), `package.json`, and the `.brand` lockup
+at the top of `header.top` in `App.tsx` — an inline copy of the mark plus the `Ref`/`Kit`
+wordmark, where `<em>` carries `--brand`. The mark is four slanted bars, one of them red: the
+same art as `public/favicon.svg`, the `.jersey` rule and the icons. `brand/maskable.svg` is the
+inset source for the maskable icon; the four PNGs in `public/` are generated from those two SVGs
+with `rsvg-convert` (command in the README) and are not hand-drawn.
 
 ## Content licence
 
