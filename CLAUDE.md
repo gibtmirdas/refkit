@@ -4,9 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-`hockeyref` — a referee PWA with two sections: **Signaux**, a flash-card deck of the 35 official
-signals of Appendix I of the IIHF Official Rule Book 2026/27, and **Fiches**, 37 pocket cheat sheets
-(penalties, game rules, procedures, SEAF specifics) taken from the printed A7 deck. React 18 +
+`hockeyref` — a referee PWA with three sections: **Signaux**, a flash-card deck of the 35 official
+signals of Appendix I of the IIHF Official Rule Book 2026/27; **Fiches**, 37 pocket cheat sheets
+(penalties, game rules, procedures, SEAF specifics) taken from the printed A7 deck; and
+**Systèmes**, 29 cards summarising the IIHF Officiating Procedure Manuals for the three- and
+four-officials systems (shared ground first, then each system). React 18 +
 TypeScript + Vite, no test framework, no linter. The UI text and the code comments about content are
 in French; the source comments are in English.
 
@@ -27,9 +29,9 @@ To test on a phone on the local network: `npm run preview -- --host`.
 
 ## Architecture
 
-Five source files, two data files, no router and no state library. `App.tsx` holds the current
-section (`hs.section`, persisted) and switches between the deck and the sheets; a collapsible menu in
-the sticky bar is the only navigation.
+Five source files, three data files, no router and no state library. `App.tsx` holds the current
+section (`hs.section`, persisted) and switches between the deck, the sheets and the systems;
+a collapsible menu in the sticky bar is the only navigation.
 
 - `src/signals.ts` — the whole content model. `Signal` records (rule number, FR/EN name, gesture
   description, `memo`, page, `family`, image filenames) plus the `FAMILIES` filter list. It is
@@ -42,15 +44,20 @@ the sticky bar is the only navigation.
   from the source document in the HockeyReferee project — do not hand-edit without carrying the
   change back. The `html` is static generated content and is injected with
   `dangerouslySetInnerHTML`; nothing there comes from user input.
-- `src/Sheet.tsx` — presentational: coloured header button, body, footer. Open state is owned by
-  `App.tsx`.
+- `src/systems.ts` — the officiating-systems cards, same shape as `sheets.ts` but keyed by
+  `group` (`common` | `s3` | `s4`), each group carrying its own colour class. Generated the same
+  way; the rink schematics are inline SVG in the `html`, styled by the `.rk-*` classes.
+- `src/Sheet.tsx` — presentational card used by **both** the sheets and the systems: coloured
+  header button, body, footer. Takes `tone` (a `th-*` colour class), `domId` and the two footer
+  labels; the open state is owned by `App.tsx`.
 - `src/App.tsx` — all state. Deck: card `order` (an index permutation into `SIGNALS`), the global
   `side`, `showDesc`, and a `flipped` set of individually-turned card ids. A card shows its back
   when `flipped.has(id) !== (side === 'back')` — the global side is a base, and a tap toggles
-  against it. Shuffle and side changes clear `flipped`. Sheets use the same idiom: a sheet is open
+  against it. Shuffle and side changes clear `flipped`. Sheets and system cards use the same idiom: a card is open
   when `toggled.has(n) !== openBase`, where `openBase` is true if "Déplier" is on **or** a search is
-  active — so a query opens every match and a tap still toggles one. Changing the query, the theme
-  or the section clears `toggled`. Keyboard: `M` shuffle, `R` flip all, `D` toggle the description
+  active — so a query opens every match and a tap still toggles one. Changing the query, the filter
+  or the section clears `toggled`. One search box and one `toggled` set serve both card sections;
+  `goTo()` resets them on every section change. Keyboard: `M` shuffle, `R` flip all, `D` toggle the description
   (deck only); `/` focuses the search and `Esc` clears it (sheets); shortcuts are ignored while
   typing in a field.
 - `src/usePersisted.ts` — `useState` mirrored into `localStorage` under `hs.*` keys, with every

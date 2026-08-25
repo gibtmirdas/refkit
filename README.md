@@ -1,6 +1,6 @@
 # Arbitre hockey — signaux & fiches, IIHF 2026/27
 
-Application web installable (PWA) avec deux sections, au choix dans le menu de la barre :
+Application web installable (PWA) avec trois sections, au choix dans le menu de la barre :
 
 - **Signaux** — les **35 signaux officiels** de l'annexe I du règlement IIHF 2026/27 :
   photo au recto, nom FR / EN et description du geste au verso. Mélange, tout face photo
@@ -8,6 +8,10 @@ Application web installable (PWA) avec deux sections, au choix dans le menu de l
 - **Fiches** — les **37 fiches de poche** SEAF / IIHF (pénalités et codes, règles de jeu,
   procédures, équipement, gestion de match), dépliables et cherchables, dans la même
   numérotation que le jeu de cartes A7 imprimé.
+
+- **Systèmes** — les **29 fiches** tirées des *IIHF Officiating Procedure Manuals* (systèmes
+  à 3 et à 4 officiels) : ce qui est commun aux deux, puis les procédures propres à chacun —
+  placement, engagements, zones de responsabilité, icing, tir de pénalité, vidéo.
 
 **Fonctionne entièrement hors ligne** une fois ouverte — utile dans une patinoire sans réseau.
 
@@ -58,9 +62,10 @@ bannière *Nouvelle version disponible* propose de recharger.
 | Fichier | Rôle |
 | --- | --- |
 | `src/signals.ts` | les 35 signaux : numéro de règle, nom FR / EN, description, mémo, famille, photos |
-| `src/sheets.ts` | les 37 fiches : numéro, thème, titre, contenu HTML, texte de recherche |
+| `src/sheets.ts` | les 37 fiches de poche : numéro, thème, titre, contenu HTML, texte de recherche |
+| `src/systems.ts` | les 29 fiches des systèmes à 3 et 4 officiels, même structure |
 | `src/Card.tsx` | la carte de signal et son retournement |
-| `src/Sheet.tsx` | une fiche dépliable |
+| `src/Sheet.tsx` | une fiche dépliable (fiches de poche et systèmes) |
 | `src/App.tsx` | état de l'app : section courante, paquet (ordre, faces), recherche et filtres des fiches |
 | `public/signals/` | les 38 photos extraites de l'annexe I |
 
@@ -68,8 +73,10 @@ Les descriptions françaises sont une traduction du texte officiel anglais. Les 
 (`memo`) signalent les gestes qu'on confond : 44 derrière le genou / 57 sous le genou,
 60 et 80 identiques, 64 et 75 identiques.
 
-Les fiches sont tirées du règlement de jeu SEAF, des directives et aide-mémoires SIHF et du
-IIHF Official Rule Book 2026/27 ; elles reprennent la numérotation du jeu de cartes A7 imprimé.
+Les fiches de poche sont tirées du règlement de jeu SEAF, des directives et aide-mémoires SIHF
+et du IIHF Official Rule Book 2026/27 ; elles reprennent la numérotation du jeu de cartes A7
+imprimé. Les fiches « systèmes » résument les deux *Officiating Procedure Manuals* de l'IIHF
+(v1.0, 05/2023), y compris le système de secours à 2 arbitres + 1 juge de lignes.
 En cas de doute, les documents officiels font foi.
 
 Raccourcis clavier — signaux : `M` mélanger, `R` tout retourner, `D` nom seul / nom + geste ;

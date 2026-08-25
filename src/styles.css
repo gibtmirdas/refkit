@@ -978,3 +978,84 @@ kbd {
     display: none;
   }
 }
+
+/* ---- rink schematics inside a sheet ---- */
+
+.sh-body svg.rink {
+  display: block;
+  width: 100%;
+  max-width: 320px;
+  height: auto;
+  margin: 2px auto 12px;
+}
+.rk-board {
+  fill: none;
+  stroke: var(--ink-3);
+  stroke-width: 1.6;
+}
+.rk-blue {
+  stroke: var(--blue);
+  stroke-width: 2.2;
+}
+.rk-red {
+  stroke: var(--hot);
+  stroke-width: 1.4;
+}
+.rk-circle {
+  fill: none;
+  stroke: var(--hot);
+  stroke-width: 1;
+  opacity: 0.5;
+}
+.rk-dot {
+  fill: var(--hot);
+  opacity: 0.7;
+}
+.rk-net {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.6;
+}
+.rk-zone {
+  fill: var(--tc);
+  opacity: 0.18;
+  stroke: var(--tc);
+  stroke-width: 1;
+  stroke-dasharray: 3 2;
+}
+.rk-pos {
+  fill: var(--tc);
+}
+.rk-z1 {
+  fill: var(--tc);
+  opacity: 0.26;
+}
+.rk-z2 {
+  fill: var(--tc);
+  opacity: 0.13;
+}
+.rk-z3 {
+  fill: var(--ink-3);
+  opacity: 0.2;
+}
+.rk-z4 {
+  fill: var(--ink-3);
+  opacity: 0.1;
+}
+.rk-t {
+  font-family: 'Barlow Condensed', 'Arial Narrow', Arial, sans-serif;
+  font-weight: 700;
+  font-size: 9px;
+  fill: var(--ink);
+}
+.rk-s {
+  font-family: 'Barlow Condensed', 'Arial Narrow', Arial, sans-serif;
+  font-size: 8px;
+  fill: var(--ink-3);
+}
+
+/* Three columns of headings in a comparison table would crush on a phone;
+   the first column carries the label and can wrap. */
+.sh-body table.t.tx th:first-child {
+  width: 26%;
+}

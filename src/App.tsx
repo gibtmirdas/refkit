@@ -4,12 +4,13 @@ import Card from './Card'
 import Sheet from './Sheet'
 import { SIGNALS } from './signals'
 import { SHEETS, THEMES, type Theme } from './sheets'
+import { SYSTEMS, SYSTEM_GROUPS, type SystemGroup } from './systems'
 import { usePersisted } from './usePersisted'
 
 type Side = 'front' | 'back'
-type Section = 'signals' | 'sheets'
+type Section = 'signals' | 'sheets' | 'systems'
 
-/** Lowercase and accent-free — the sheets' search index is stored that way. */
+/** Lowercase and accent-free — the search indexes are stored that way. */
 const fold = (s: string) =>
   s
     .toLowerCase()
@@ -19,6 +20,10 @@ const fold = (s: string) =>
 const THEME_LABEL = Object.fromEntries(THEMES.map((t) => [t.key, t.label])) as Record<
   Theme,
   string
+>
+const GROUP = Object.fromEntries(SYSTEM_GROUPS.map((g) => [g.key, g])) as Record<
+  SystemGroup,
+  (typeof SYSTEM_GROUPS)[number]
 >
 
 export default function App() {
@@ -31,13 +36,18 @@ export default function App() {
   const [showDesc, setShowDesc] = usePersisted<boolean>('hs.desc', true)
   const [flipped, setFlipped] = useState<Set<string>>(() => new Set())
 
-  // --- pocket sheets ---
+  // --- pocket sheets and officiating systems ---
   const [theme, setTheme] = useState<Theme | 'all'>('all')
+  const [group, setGroup] = useState<SystemGroup | 'all'>('all')
   const [query, setQuery] = useState('')
   const [expandAll, setExpandAll] = useState(false)
   const [toggled, setToggled] = useState<Set<number>>(() => new Set())
   const searchRef = useRef<HTMLInputElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
+
+  const onSheets = section === 'sheets'
+  const onSystems = section === 'systems'
+  const onCards = onSheets || onSystems
 
   const visible = useMemo(() => order.map((i) => SIGNALS[i]), [order])
 
@@ -50,6 +60,17 @@ export default function App() {
       ),
     [theme, terms],
   )
+  const systems = useMemo(
+    () =>
+      SYSTEMS.filter(
+        (s) =>
+          (group === 'all' || s.group === group) && terms.every((t) => s.search.includes(t)),
+      ),
+    [group, terms],
+  )
+
+  const total = onSystems ? SYSTEMS.length : SHEETS.length
+  const shown = onSystems ? systems.length : sheets.length
 
   // A search opens every match; like the deck, a tap then toggles against that
   // base rather than setting an absolute state.
@@ -89,7 +110,7 @@ export default function App() {
     })
   }, [])
 
-  const toggleSheet = useCallback((n: number) => {
+  const toggleCard = useCallback((n: number) => {
     setToggled((prev) => {
       const next = new Set(prev)
       if (next.has(n)) next.delete(n)
@@ -104,11 +125,13 @@ export default function App() {
   }, [])
 
   const goTo = useCallback(
-    (next: Section, t: Theme | 'all' = 'all') => {
+    (next: Section, filter: Theme | SystemGroup | 'all' = 'all') => {
       setSection(next)
-      setTheme(t)
-      setMenuOpen(false)
+      setTheme(next === 'sheets' ? (filter as Theme | 'all') : 'all')
+      setGroup(next === 'systems' ? (filter as SystemGroup | 'all') : 'all')
+      setQuery('')
       setToggled(new Set())
+      setMenuOpen(false)
       window.scrollTo({ top: 0 })
     },
     [setSection],
@@ -144,7 +167,7 @@ export default function App() {
         }
         return
       }
-      if (section === 'sheets') {
+      if (onCards) {
         if (e.key === '/') {
           e.preventDefault()
           searchRef.current?.focus()
@@ -158,9 +181,7 @@ export default function App() {
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [section, shuffle, setSideAll, side, showDesc, setShowDesc, search])
-
-  const onSheets = section === 'sheets'
+  }, [onCards, shuffle, setSideAll, side, showDesc, setShowDesc, search])
 
   return (
     <>
@@ -168,7 +189,11 @@ export default function App() {
       <div className="wrap">
         <header className="top">
           <h1>
-            {onSheets ? (
+            {onSystems ? (
+              <>
+                Syst&egrave;mes d’<em>arbitrage</em>
+              </>
+            ) : onSheets ? (
               <>
                 Fiches de <em>poche</em>
               </>
@@ -179,7 +204,11 @@ export default function App() {
             )}
           </h1>
           <div className="meta">
-            {onSheets ? (
+            {onSystems ? (
+              <>
+                IIHF Procedure Manual <b>2023</b> · 3 &amp; 4 officiels
+              </>
+            ) : onSheets ? (
               <>
                 SEAF / Swiss Ice Hockey · IIHF <b>2026/27</b>
               </>
@@ -208,19 +237,20 @@ export default function App() {
                   strokeLinecap="round"
                 />
               </svg>
-              {onSheets ? 'Fiches' : 'Signaux'}
+              {onSystems ? 'Systèmes' : onSheets ? 'Fiches' : 'Signaux'}
             </button>
 
             {menuOpen && (
               <div className="menu-panel" id="nav">
                 <button
                   className="menu-item"
-                  aria-current={!onSheets}
+                  aria-current={section === 'signals'}
                   onClick={() => goTo('signals')}
                 >
                   <span className="mi-t">Signaux de l’arbitre</span>
                   <span className="mi-s">{SIGNALS.length} cartes · gestes en photo</span>
                 </button>
+
                 <button
                   className="menu-item"
                   aria-current={onSheets && theme === 'all'}
@@ -242,22 +272,49 @@ export default function App() {
                     </button>
                   ))}
                 </div>
+
+                <button
+                  className="menu-item"
+                  aria-current={onSystems && group === 'all'}
+                  onClick={() => goTo('systems')}
+                >
+                  <span className="mi-t">Systèmes d’arbitrage</span>
+                  <span className="mi-s">{SYSTEMS.length} fiches · placement &amp; procédures</span>
+                </button>
+                <div className="menu-themes">
+                  {SYSTEM_GROUPS.map((g) => (
+                    <button
+                      key={g.key}
+                      className={`th-chip ${g.tone}`}
+                      aria-current={onSystems && group === g.key}
+                      onClick={() => goTo('systems', g.key)}
+                    >
+                      <span className="dot" />
+                      {g.short}
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
           </div>
 
-          {onSheets ? (
+          {onCards ? (
             <>
               <label className="find">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                   <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2.2" />
-                  <path d="M20 20l-4.3-4.3" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+                  <path
+                    d="M20 20l-4.3-4.3"
+                    stroke="currentColor"
+                    strokeWidth="2.2"
+                    strokeLinecap="round"
+                  />
                 </svg>
                 <input
                   ref={searchRef}
                   type="text"
                   value={query}
-                  placeholder="Chercher une faute, une règle, un code…"
+                  placeholder={onSystems ? 'Chercher un placement, un rôle…' : 'Chercher une faute, une règle, un code…'}
                   aria-label="Chercher dans les fiches"
                   autoComplete="off"
                   onChange={(e) => search(e.target.value)}
@@ -276,7 +333,8 @@ export default function App() {
                   </button>
                 )}
               </label>
-              {theme !== 'all' && (
+
+              {onSheets && theme !== 'all' && (
                 <button
                   className={`th-chip on th-${theme}`}
                   onClick={() => setTheme('all')}
@@ -286,6 +344,17 @@ export default function App() {
                   {THEME_LABEL[theme]} ×
                 </button>
               )}
+              {onSystems && group !== 'all' && (
+                <button
+                  className={`th-chip on ${GROUP[group].tone}`}
+                  onClick={() => setGroup('all')}
+                  title="Voir toutes les fiches"
+                >
+                  <span className="dot" />
+                  {GROUP[group].short} ×
+                </button>
+              )}
+
               <button
                 className="tgl"
                 aria-pressed={expandAll}
@@ -298,9 +367,7 @@ export default function App() {
                 Déplier
               </button>
               <span className="tally">
-                {sheets.length === SHEETS.length
-                  ? `${SHEETS.length} fiches`
-                  : `${sheets.length} / ${SHEETS.length}`}
+                {shown === total ? `${total} fiches` : `${shown} / ${total}`}
               </span>
             </>
           ) : (
@@ -331,24 +398,44 @@ export default function App() {
           )}
         </div>
 
-        {onSheets ? (
+        {onCards ? (
           <>
             <div className="sheets">
-              {sheets.map((s) => (
-                <Sheet
-                  key={s.n}
-                  sheet={s}
-                  total={SHEETS.length}
-                  themeLabel={THEME_LABEL[s.theme]}
-                  open={toggled.has(s.n) !== openBase}
-                  onToggle={() => toggleSheet(s.n)}
-                />
-              ))}
+              {onSystems
+                ? systems.map((s) => (
+                    <Sheet
+                      key={s.n}
+                      n={s.n}
+                      title={s.title}
+                      html={s.html}
+                      tone={GROUP[s.group].tone}
+                      domId={`sy-${s.n}`}
+                      footLeft={GROUP[s.group].label}
+                      footRight={`fiche ${s.n} / ${SYSTEMS.length}`}
+                      open={toggled.has(s.n) !== openBase}
+                      onToggle={() => toggleCard(s.n)}
+                    />
+                  ))
+                : sheets.map((s) => (
+                    <Sheet
+                      key={s.n}
+                      n={s.n}
+                      title={s.title}
+                      html={s.html}
+                      tone={`th-${s.theme}`}
+                      domId={`sh-${s.n}`}
+                      footLeft={THEME_LABEL[s.theme]}
+                      footRight={`fiche ${s.n} / ${SHEETS.length}`}
+                      open={toggled.has(s.n) !== openBase}
+                      onToggle={() => toggleCard(s.n)}
+                    />
+                  ))}
             </div>
-            {sheets.length === 0 && (
+            {shown === 0 && (
               <p className="none">
-                Aucune fiche. Essaie « icing », « méconduite », « engagement », ou un numéro de
-                règle.
+                {onSystems
+                  ? 'Aucune fiche. Essaie « icing », « engagement », « zone », « L2 », « wash-out ».'
+                  : 'Aucune fiche. Essaie « icing », « méconduite », « engagement », ou un numéro de règle.'}
               </p>
             )}
             <p className="hint">
@@ -359,8 +446,9 @@ export default function App() {
               </span>
             </p>
             <p className="credit">
-              Aide-mémoire tiré du règlement de jeu SEAF, des directives et aide-mémoires SIHF et du
-              IIHF Official Rule Book 2026/27. En cas de doute, les documents officiels font foi.
+              {onSystems
+                ? 'IIHF Officiating Procedure Manual — Three Officials System et Four Officials System, v1.0, 05/2023. Résumé en français ; le manuel officiel fait foi.'
+                : 'Aide-mémoire tiré du règlement de jeu SEAF, des directives et aide-mémoires SIHF et du IIHF Official Rule Book 2026/27. En cas de doute, les documents officiels font foi.'}
             </p>
           </>
         ) : (
