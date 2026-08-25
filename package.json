@@ -1,9 +1,9 @@
 {
-  "name": "hockeyref",
+  "name": "refkit",
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "Signaux de l'arbitre — les 35 signaux officiels IIHF en cartes à réviser, installable et hors ligne",
+  "description": "RefKit — les 35 signaux officiels IIHF et 37 fiches de poche SEAF / IIHF, installable et hors ligne",
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
