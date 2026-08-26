@@ -614,13 +614,18 @@ kbd {
   margin-top: 1px;
 }
 
+/* Un trait separe deux sections, jamais un titre de ses propres pastilles. */
+.menu-sec + .menu-sec {
+  margin-top: 5px;
+  padding-top: 5px;
+  border-top: 1px solid var(--line-2);
+}
+
 .menu-themes {
   display: flex;
   flex-wrap: wrap;
   gap: 5px;
-  padding: 8px 10px 4px;
-  margin-top: 4px;
-  border-top: 1px solid var(--line-2);
+  padding: 6px 10px 2px;
 }
 
 .th-chip {
