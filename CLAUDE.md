@@ -9,8 +9,11 @@ signals of Appendix I of the IIHF Official Rule Book 2026/27; **Fiches**, 37 poc
 (penalties, game rules, procedures, SEAF specifics) taken from the printed A7 deck; and
 **Systèmes**, 29 cards summarising the IIHF Officiating Procedure Manuals for the three- and
 four-officials systems (shared ground first, then each system). Where the Swiss basic-course
-module (NWA ON01 « Règles générales ») differs from the IIHF/SEAF wording, **it wins** — the
-equipment-infraction ladder and the substitute-goalkeeper warm-up are the two clearest cases. React 18 +
+modules (NWA ON01 « Règles générales », ON02 « Autres infractions ») differ from the IIHF/SEAF
+wording, **they win** — the equipment-infraction ladder and the substitute-goalkeeper warm-up
+are the two clearest cases. The pocket sheets are generated from the source cards in the
+HockeyReferee project; inserting a card there means re-running `renumber.py`, which preserves
+each cross-reference's **target** (not its number) and recomputes the cover index. React 18 +
 TypeScript + Vite, no test framework, no linter. The UI text and the code comments about content are
 in French; the source comments are in English.
 

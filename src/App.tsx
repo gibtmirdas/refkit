@@ -448,7 +448,7 @@ export default function App() {
             <p className="credit">
               {onSystems
                 ? 'IIHF Officiating Procedure Manual — Three Officials System et Four Officials System, v1.0, 05/2023. Résumé en français ; le manuel officiel fait foi.'
-                : 'Aide-mémoire tiré du cours de base SIHF « Règles générales », du règlement de jeu SEAF, des directives et aide-mémoires SIHF et du IIHF Official Rule Book 2026/27. En cas de doute, les documents officiels font foi.'}
+                : 'Aide-mémoire tiré des cours de base SIHF (« Règles générales », « Autres infractions »), du règlement de jeu SEAF, des directives et aide-mémoires SIHF et du IIHF Official Rule Book 2026/27. En cas de doute, les documents officiels font foi.'}
             </p>
           </>
         ) : (
