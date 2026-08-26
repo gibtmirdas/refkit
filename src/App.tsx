@@ -26,6 +26,14 @@ const GROUP = Object.fromEntries(SYSTEM_GROUPS.map((g) => [g.key, g])) as Record
   (typeof SYSTEM_GROUPS)[number]
 >
 
+const BASE = import.meta.env.BASE_URL
+
+/** Le paquet imprimable, servi depuis public/pdf — precache, donc lisible hors ligne. */
+const PDFS = [
+  { file: 'fiches-arbitre-planches-A4.pdf', label: 'Planches A4', hint: '8 cartes par feuille, \u00e0 d\u00e9couper' },
+  { file: 'fiches-arbitre-cartes.pdf', label: 'Cartes A7', hint: 'une carte par page' },
+]
+
 export default function App() {
   const [section, setSection] = usePersisted<Section>('hs.section', 'signals')
   const [menuOpen, setMenuOpen] = useState(false)
@@ -270,6 +278,31 @@ export default function App() {
                       <span className="dot" />
                       {t.short}
                     </button>
+                  ))}
+                </div>
+
+                <div className="menu-pdf">
+                  <span className="pdf-cap">PDF &agrave; imprimer</span>
+                  {PDFS.map((p) => (
+                    <a
+                      key={p.file}
+                      className="pdf-link"
+                      href={`${BASE}pdf/${p.file}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      title={`${p.label} \u2014 ${p.hint}`}
+                    >
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path
+                          d="M7 3h7l5 5v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"
+                          stroke="currentColor"
+                          strokeWidth="1.9"
+                          strokeLinejoin="round"
+                        />
+                        <path d="M14 3v5h5" stroke="currentColor" strokeWidth="1.9" strokeLinejoin="round" />
+                      </svg>
+                      {p.label}
+                    </a>
                   ))}
                 </div>
 

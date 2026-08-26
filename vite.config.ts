@@ -2,9 +2,9 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
-// Published at https://gibtmirdas.github.io/refkit/ — the base must match the
+// Published at https://gibtmirdas.github.io/hockeyref/ — the base must match the
 // repository name, otherwise the service worker scope and the manifest are wrong.
-const BASE = '/refkit/'
+const BASE = '/hockeyref/'
 
 export default defineConfig({
   base: BASE,
@@ -15,18 +15,18 @@ export default defineConfig({
       includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
       manifest: {
         id: BASE,
-        name: "RefKit — signaux & fiches de l'arbitre",
-        short_name: 'RefKit',
+        name: "Signaux de l'arbitre — IIHF 2026/27",
+        short_name: 'Signaux',
         description:
-          "RefKit — les 35 signaux officiels IIHF en cartes à retourner, et 37 fiches de poche SEAF / IIHF : pénalités, règles de jeu, procédures. Fonctionne hors ligne.",
+          "Les 35 signaux officiels de l'annexe I du règlement IIHF 2026/27, en cartes à retourner. Fonctionne hors ligne.",
         lang: 'fr',
         dir: 'ltr',
         start_url: BASE,
         scope: BASE,
         display: 'standalone',
         orientation: 'portrait',
-        background_color: '#0d0d1a',
-        theme_color: '#0d0d1a',
+        background_color: '#e9eef2',
+        theme_color: '#101821',
         categories: ['sports', 'education'],
         icons: [
           { src: 'icons/icon-192.png', sizes: '192x192', type: 'image/png' },
@@ -36,7 +36,7 @@ export default defineConfig({
       },
       workbox: {
         // Everything is precached: the app is fully usable in a rink with no signal.
-        globPatterns: ['**/*.{js,css,html,svg,png,jpg,webmanifest}'],
+        globPatterns: ['**/*.{js,css,html,svg,png,jpg,webmanifest,pdf}'],
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
         cleanupOutdatedCaches: true,
         // Google Fonts live on another origin, so they cannot be precached at build
