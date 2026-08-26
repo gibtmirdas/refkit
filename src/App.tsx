@@ -188,21 +188,6 @@ export default function App() {
       <div className="jersey" />
       <div className="wrap">
         <header className="top">
-          <div className="brand">
-            <svg className="mark" viewBox="0 0 100 100" aria-hidden="true">
-              <rect width="100" height="100" rx="12" fill="var(--surface)" />
-              <g fill="var(--ink)">
-                <polygon points="22.8,10 35.6,10 22.4,90 9.6,90" />
-                <polygon points="46,10 58.8,10 45.6,90 32.8,90" />
-                <polygon points="81.2,10 94,10 80.8,90 68,90" />
-              </g>
-              <polygon points="65.2,10 74.8,10 61.6,90 52,90" fill="var(--brand)" />
-            </svg>
-            <span className="wordmark">
-              Ref<em>Kit</em>
-            </span>
-            <span className="tag">Aide-mémoire de l’arbitre</span>
-          </div>
           <h1>
             {onSystems ? (
               <>
@@ -463,7 +448,7 @@ export default function App() {
             <p className="credit">
               {onSystems
                 ? 'IIHF Officiating Procedure Manual — Three Officials System et Four Officials System, v1.0, 05/2023. Résumé en français ; le manuel officiel fait foi.'
-                : 'Aide-mémoire tiré du règlement de jeu SEAF, des directives et aide-mémoires SIHF et du IIHF Official Rule Book 2026/27. En cas de doute, les documents officiels font foi.'}
+                : 'Aide-mémoire tiré du cours de base SIHF « Règles générales », du règlement de jeu SEAF, des directives et aide-mémoires SIHF et du IIHF Official Rule Book 2026/27. En cas de doute, les documents officiels font foi.'}
             </p>
           </>
         ) : (
