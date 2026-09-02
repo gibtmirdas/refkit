@@ -59,6 +59,15 @@ export default function App() {
   const searchRef = useRef<HTMLInputElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
+  // --- navigation dans les occurrences surlignees ---
+  // Les <mark> sont poses par Sheet.tsx au rendu ; on les relit ensuite dans
+  // le DOM, ce qui donne l'ordre d'affichage sans avoir a numeroter les
+  // fiches une a une.
+  const listRef = useRef<HTMLDivElement>(null);
+  const marksRef = useRef<HTMLElement[]>([]);
+  const [hit, setHit] = useState(0);
+  const [hits, setHits] = useState(0);
+
   const onSheets = section === "sheets";
   const onSystems = section === "systems";
   const onCards = onSheets || onSystems;
@@ -138,6 +147,26 @@ export default function App() {
     });
   }, []);
 
+  const paintHit = useCallback((i: number, scroll: boolean) => {
+    const marks = marksRef.current;
+    marks.forEach((m) => m.classList.remove("hl-cur"));
+    const cur = marks[i];
+    if (!cur) return;
+    cur.classList.add("hl-cur");
+    if (scroll) cur.scrollIntoView({ block: "center", behavior: "smooth" });
+  }, []);
+
+  const goHit = useCallback(
+    (delta: number) => {
+      const n = marksRef.current.length;
+      if (!n) return;
+      const next = (((hit + delta) % n) + n) % n;
+      setHit(next);
+      paintHit(next, true);
+    },
+    [hit, paintHit],
+  );
+
   const search = useCallback((value: string) => {
     setQuery(value);
     setToggled(new Set());
@@ -155,6 +184,26 @@ export default function App() {
     },
     [setSection],
   );
+
+  // Recense les occurrences apres chaque rendu qui peut les changer, et
+  // repeint la courante — React recree les <mark> des que les termes bougent.
+  useEffect(() => {
+    const root = listRef.current;
+    marksRef.current = root
+      ? Array.from(root.querySelectorAll<HTMLElement>("mark.hl"))
+      : [];
+    const n = marksRef.current.length;
+    setHits(n);
+    const i = hit < n ? hit : 0;
+    if (i !== hit) setHit(i);
+    paintHit(i, false);
+  }, [terms, section, theme, group, toggled, expandAll, sheets, systems, hit, paintHit]);
+
+  // Une nouvelle recherche, ou un changement de section ou de filtre, repart
+  // de la premiere occurrence.
+  useEffect(() => {
+    setHit(0);
+  }, [terms, section, theme, group]);
 
   // Close the menu on Escape or on a click outside it.
   useEffect(() => {
@@ -410,6 +459,11 @@ export default function App() {
                   aria-label="Chercher dans les fiches"
                   autoComplete="off"
                   onChange={(e) => search(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key !== "Enter") return;
+                    e.preventDefault();
+                    goHit(e.shiftKey ? -1 : 1);
+                  }}
                 />
                 {query && (
                   <button
@@ -425,6 +479,30 @@ export default function App() {
                   </button>
                 )}
               </label>
+
+              {terms.length > 0 && hits > 0 && (
+                <div className="hits" role="group" aria-label="Occurrences trouv\u00e9es">
+                  <button
+                    type="button"
+                    onClick={() => goHit(-1)}
+                    title="Occurrence pr\u00e9c\u00e9dente (Maj+Entr\u00e9e)"
+                    aria-label="Occurrence pr\u00e9c\u00e9dente"
+                  >
+                    &#8249;
+                  </button>
+                  <span aria-live="polite">
+                    {hit + 1}<span className="hs-sep">/</span>{hits}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => goHit(1)}
+                    title="Occurrence suivante (Entr\u00e9e)"
+                    aria-label="Occurrence suivante"
+                  >
+                    &#8250;
+                  </button>
+                </div>
+              )}
 
               {onSheets && theme !== "all" && (
                 <button
@@ -499,7 +577,7 @@ export default function App() {
 
         {onCards ? (
           <>
-            <div className="sheets">
+            <div className="sheets" ref={listRef}>
               {onSystems
                 ? systems.map((s) => (
                     <Sheet
@@ -513,6 +591,7 @@ export default function App() {
                       footRight={`fiche ${s.n} / ${SYSTEMS.length}`}
                       open={toggled.has(s.n) !== openBase}
                       onToggle={() => toggleCard(s.n)}
+                      terms={terms}
                     />
                   ))
                 : sheets.map((s) => (
@@ -527,6 +606,7 @@ export default function App() {
                       footRight={`fiche ${s.n} / ${SHEETS.length}`}
                       open={toggled.has(s.n) !== openBase}
                       onToggle={() => toggleCard(s.n)}
+                      terms={terms}
                     />
                   ))}
             </div>

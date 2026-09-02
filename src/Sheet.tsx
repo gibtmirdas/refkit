@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { highlightHtml, highlightNodes } from './highlight'
 
 const BASE = import.meta.env.BASE_URL
 
@@ -19,6 +20,8 @@ interface Props {
   footRight: string
   open: boolean
   onToggle: () => void
+  /** Termes cherchés, repliés — surlignés dans le titre et dans le corps. */
+  terms: string[]
 }
 
 /**
@@ -35,15 +38,20 @@ export default function Sheet({
   footRight,
   open,
   onToggle,
+  terms,
 }: Props) {
-  const body = useMemo(() => html.split('src="@/').join(`src="${BASE}`), [html])
+  const body = useMemo(() => {
+    const withBase = html.split('src="@/').join(`src="${BASE}`)
+    return highlightHtml(withBase, terms)
+  }, [html, terms])
+  const heading = useMemo(() => highlightNodes(title, terms), [title, terms])
 
   return (
     <article className={`sheet ${tone}`}>
       <h3 className="sh-hd">
         <button type="button" aria-expanded={open} aria-controls={domId} onClick={onToggle}>
           <span className="sh-n">{n}</span>
-          <span className="sh-t">{title}</span>
+          <span className="sh-t">{heading}</span>
           <svg className="sh-c" width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" />
           </svg>
