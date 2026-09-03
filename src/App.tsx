@@ -26,12 +26,63 @@ const GROUP = Object.fromEntries(
 
 const BASE = import.meta.env.BASE_URL;
 
+/**
+ * Nombre de colonnes, aux memes seuils que l'ancien `column-count`. Les
+ * colonnes sont rendues explicitement plutot que laissees au multi-colonnes
+ * CSS : celui-ci recalcule la repartition a chaque changement de hauteur, si
+ * bien qu'ouvrir une fiche faisait sauter les suivantes d'une colonne a
+ * l'autre.
+ */
+function useColumnCount(): number {
+  const read = () =>
+    typeof window === "undefined"
+      ? 1
+      : window.matchMedia("(min-width: 1320px)").matches
+        ? 3
+        : window.matchMedia("(min-width: 900px)").matches
+          ? 2
+          : 1;
+  const [cols, setCols] = useState(read);
+  useEffect(() => {
+    const wide = window.matchMedia("(min-width: 1320px)");
+    const mid = window.matchMedia("(min-width: 900px)");
+    const sync = () => setCols(read());
+    wide.addEventListener("change", sync);
+    mid.addEventListener("change", sync);
+    return () => {
+      wide.removeEventListener("change", sync);
+      mid.removeEventListener("change", sync);
+    };
+  }, []);
+  return cols;
+}
+
+/**
+ * Repartit les fiches en tranches contigues : la colonne 1 prend le debut, la
+ * colonne 2 la suite. La coupe se fait sur le rang, jamais sur la hauteur —
+ * une fiche ne change donc jamais de colonne, et l'ordre de lecture reste
+ * celui du paquet, colonne par colonne.
+ */
+function intoColumns<T>(items: T[], cols: number): T[][] {
+  if (cols <= 1) return [items];
+  const base = Math.floor(items.length / cols);
+  const extra = items.length % cols;
+  const out: T[][] = [];
+  let i = 0;
+  for (let c = 0; c < cols; c++) {
+    const size = base + (c < extra ? 1 : 0);
+    out.push(items.slice(i, i + size));
+    i += size;
+  }
+  return out;
+}
+
 /** Le paquet imprimable, servi depuis public/pdf — precache, donc lisible hors ligne. */
 const PDFS = [
   {
     file: "fiches-arbitre-planches-A4.pdf",
     label: "Planches A4",
-    hint: "8 cartes par feuille, \u00e0 d\u00e9couper",
+    hint: "8 cartes par feuille, à découper",
   },
   {
     file: "fiches-arbitre-cartes.pdf",
@@ -99,6 +150,10 @@ export default function App() {
 
   const total = onSystems ? SYSTEMS.length : SHEETS.length;
   const shown = onSystems ? systems.length : sheets.length;
+
+  const cols = useColumnCount();
+  const sheetCols = useMemo(() => intoColumns(sheets, cols), [sheets, cols]);
+  const systemCols = useMemo(() => intoColumns(systems, cols), [systems, cols]);
 
   // A search opens every match; like the deck, a tap then toggles against that
   // base rather than setting an absolute state.
@@ -481,12 +536,12 @@ export default function App() {
               </label>
 
               {terms.length > 0 && hits > 0 && (
-                <div className="hits" role="group" aria-label="Occurrences trouv\u00e9es">
+                <div className="hits" role="group" aria-label="Occurrences trouvées">
                   <button
                     type="button"
                     onClick={() => goHit(-1)}
-                    title="Occurrence pr\u00e9c\u00e9dente (Maj+Entr\u00e9e)"
-                    aria-label="Occurrence pr\u00e9c\u00e9dente"
+                    title="Occurrence précédente (Maj+Entrée)"
+                    aria-label="Occurrence précédente"
                   >
                     &#8249;
                   </button>
@@ -496,7 +551,7 @@ export default function App() {
                   <button
                     type="button"
                     onClick={() => goHit(1)}
-                    title="Occurrence suivante (Entr\u00e9e)"
+                    title="Occurrence suivante (Entrée)"
                     aria-label="Occurrence suivante"
                   >
                     &#8250;
@@ -579,35 +634,43 @@ export default function App() {
           <>
             <div className="sheets" ref={listRef}>
               {onSystems
-                ? systems.map((s) => (
-                    <Sheet
-                      key={s.n}
-                      n={s.n}
-                      title={s.title}
-                      html={s.html}
-                      tone={GROUP[s.group].tone}
-                      domId={`sy-${s.n}`}
-                      footLeft={GROUP[s.group].label}
-                      footRight={`fiche ${s.n} / ${SYSTEMS.length}`}
-                      open={toggled.has(s.n) !== openBase}
-                      onToggle={() => toggleCard(s.n)}
-                      terms={terms}
-                    />
+                ? systemCols.map((col, c) => (
+                    <div className="sh-col" key={c}>
+                      {col.map((s) => (
+                        <Sheet
+                          key={s.n}
+                          n={s.n}
+                          title={s.title}
+                          html={s.html}
+                          tone={GROUP[s.group].tone}
+                          domId={`sy-${s.n}`}
+                          footLeft={GROUP[s.group].label}
+                          footRight={`fiche ${s.n} / ${SYSTEMS.length}`}
+                          open={toggled.has(s.n) !== openBase}
+                          onToggle={() => toggleCard(s.n)}
+                          terms={terms}
+                        />
+                      ))}
+                    </div>
                   ))
-                : sheets.map((s) => (
-                    <Sheet
-                      key={s.n}
-                      n={s.n}
-                      title={s.title}
-                      html={s.html}
-                      tone={`th-${s.theme}`}
-                      domId={`sh-${s.n}`}
-                      footLeft={THEME_LABEL[s.theme]}
-                      footRight={`fiche ${s.n} / ${SHEETS.length}`}
-                      open={toggled.has(s.n) !== openBase}
-                      onToggle={() => toggleCard(s.n)}
-                      terms={terms}
-                    />
+                : sheetCols.map((col, c) => (
+                    <div className="sh-col" key={c}>
+                      {col.map((s) => (
+                        <Sheet
+                          key={s.n}
+                          n={s.n}
+                          title={s.title}
+                          html={s.html}
+                          tone={`th-${s.theme}`}
+                          domId={`sh-${s.n}`}
+                          footLeft={THEME_LABEL[s.theme]}
+                          footRight={`fiche ${s.n} / ${SHEETS.length}`}
+                          open={toggled.has(s.n) !== openBase}
+                          onToggle={() => toggleCard(s.n)}
+                          terms={terms}
+                        />
+                      ))}
+                    </div>
                   ))}
             </div>
             {shown === 0 && (

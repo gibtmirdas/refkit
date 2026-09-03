@@ -730,18 +730,31 @@ kbd {
 
 /* ---- the sheets themselves ---- */
 
+/* Colonnes explicites, une <div> par colonne : le multi-colonnes CSS
+   redistribuait les fiches des qu'une hauteur changeait, si bien qu'ouvrir une
+   fiche faisait sauter les suivantes d'une colonne a l'autre. Ici chaque fiche
+   garde sa place, et l'ordre de lecture reste colonne par colonne. */
 .sheets {
   margin-top: 18px;
-  column-gap: 12px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  align-items: start;
+}
+.sh-col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
 }
 @media (min-width: 900px) {
   .sheets {
-    column-count: 2;
+    grid-template-columns: 1fr 1fr;
   }
 }
 @media (min-width: 1320px) {
   .sheets {
-    column-count: 3;
+    grid-template-columns: 1fr 1fr 1fr;
   }
 }
 
@@ -751,9 +764,6 @@ kbd {
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   overflow: hidden;
-  margin: 0 0 10px;
-  break-inside: avoid;
-  -webkit-column-break-inside: avoid;
 }
 
 .sh-hd {
