@@ -120,6 +120,7 @@ export default function App() {
   const [theme, setTheme] = useState<Theme | "all">("all");
   const [group, setGroup] = useState<SystemGroup | "all">("all");
   const [fam, setFam] = useState<Family | "all">("all");
+  const [penDetails, setPenDetails] = usePersisted<boolean>("hs.pendet", true);
   // Fiche a rejoindre depuis un renvoi de la table des infractions.
   const [jumpTo, setJumpTo] = useState<number | null>(null);
   const [query, setQuery] = useState("");
@@ -321,6 +322,7 @@ export default function App() {
     sheets,
     systems,
     penalties,
+    penDetails,
     hit,
     paintHit,
   ]);
@@ -711,7 +713,20 @@ export default function App() {
                 </button>
               )}
 
-              {!onPen && (
+              {onPen ? (
+                <button
+                  className="tgl"
+                  aria-pressed={penDetails}
+                  onClick={() => setPenDetails(!penDetails)}
+                  title={
+                    penDetails
+                      ? "Masquer le critère et le renvoi de fiche"
+                      : "Afficher le critère et le renvoi de fiche"
+                  }
+                >
+                  Détails
+                </button>
+              ) : (
                 <button
                   className="tgl"
                   aria-pressed={expandAll}
@@ -767,7 +782,10 @@ export default function App() {
 
         {onPen ? (
           <>
-            <div className="pen" ref={listRef}>
+            <div
+              className={`pen${penDetails ? "" : " pen-lite"}`}
+              ref={listRef}
+            >
               <div className="pen-hd" aria-hidden="true">
                 <span>Code</span>
                 <span>Infraction</span>
@@ -778,21 +796,25 @@ export default function App() {
                   <span className="pen-code">{p.code}</span>
                   <div className="pen-main">
                     <h3 className="pen-fr">{highlightNodes(p.fr, terms)}</h3>
-                    <p className="pen-en">{highlightNodes(p.en, terms)}</p>
-                    <p
-                      className="pen-crit"
-                      dangerouslySetInnerHTML={{
-                        __html: highlightHtml(p.crit, terms),
-                      }}
-                    />
-                    <button
-                      type="button"
-                      className="pen-ref"
-                      onClick={() => openSheet(p.fiche)}
-                      title={`Ouvrir la fiche ${p.fiche} — ${p.ficheTitre}`}
-                    >
-                      fiche {p.fiche} · {p.ficheTitre}
-                    </button>
+                    {penDetails && (
+                      <>
+                        <p className="pen-en">{highlightNodes(p.en, terms)}</p>
+                        <p
+                          className="pen-crit"
+                          dangerouslySetInnerHTML={{
+                            __html: highlightHtml(p.crit, terms),
+                          }}
+                        />
+                        <button
+                          type="button"
+                          className="pen-ref"
+                          onClick={() => openSheet(p.fiche)}
+                          title={`Ouvrir la fiche ${p.fiche} — ${p.ficheTitre}`}
+                        >
+                          fiche {p.fiche} · {p.ficheTitre}
+                        </button>
+                      </>
+                    )}
                   </div>
                   <ul className="pen-sanc">
                     {p.sanctions.map((k) => (
