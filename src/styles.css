@@ -1175,3 +1175,198 @@ kbd {
   outline: var(--ring);
   outline-offset: -1px;
 }
+
+/* ---- codes & pénalités : la table des infractions ---- */
+
+.pen {
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pen-hd {
+  display: none;
+}
+
+.pen-row {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 10px 12px;
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 8px 10px;
+  align-items: start;
+}
+
+.pen-code {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 17px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--onband);
+  background: var(--th-c);
+  border-radius: var(--radius-sm);
+  padding: 6px 0;
+  text-align: center;
+}
+
+.pen-main {
+  min-width: 0;
+}
+.pen-fr {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 16.5px;
+  line-height: 1.15;
+  letter-spacing: 0.01em;
+}
+.pen-en {
+  margin: 1px 0 0;
+  font-size: 12px;
+  font-style: italic;
+  color: var(--ink-3);
+}
+.pen-crit {
+  margin: 6px 0 0;
+  font-size: 13.5px;
+  line-height: 1.42;
+  color: var(--ink-2);
+}
+.pen-crit b {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.pen-ref {
+  all: unset;
+  cursor: pointer;
+  display: inline-block;
+  margin-top: 7px;
+  font-size: 11.5px;
+  color: var(--ink-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  padding: 3px 9px;
+}
+.pen-ref::before {
+  content: "→ ";
+}
+.pen-ref:hover {
+  color: var(--brand);
+  border-color: var(--brand);
+  background: var(--surface-2);
+}
+.pen-ref:focus-visible {
+  outline: var(--ring);
+  outline-offset: 2px;
+}
+
+.pen-sanc {
+  grid-column: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.pen-sanc li,
+.pen-kv i {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 11.5px;
+  letter-spacing: 0.04em;
+  padding: 3px 8px;
+  border-radius: var(--radius-pill);
+  border: 1px solid currentColor;
+  white-space: nowrap;
+  font-style: normal;
+}
+
+/* une teinte par degré de gravité */
+.s-min,
+.s-bench {
+  color: var(--slate);
+}
+.s-dbl {
+  color: var(--th-f);
+}
+.s-maj {
+  color: var(--red);
+}
+.s-majpmm,
+.s-pmm {
+  color: var(--onbrand);
+  background: var(--brand-deep);
+  border-color: var(--brand-deep);
+}
+.s-misc {
+  color: var(--th-e);
+}
+.s-ps {
+  color: var(--blue);
+}
+.s-goal {
+  color: var(--green);
+}
+.s-none,
+.s-rule {
+  color: var(--ink-3);
+}
+.s-rule {
+  border-style: dotted;
+}
+.s-bench {
+  border-style: dashed;
+}
+
+.pen-key {
+  margin: 16px 0 4px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 14px;
+  font-size: 11.5px;
+  color: var(--ink-3);
+}
+.pen-key b {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-2);
+}
+.pen-kv {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.empty {
+  margin: 24px 0;
+  color: var(--ink-3);
+  font-size: 14px;
+}
+.empty b {
+  color: var(--ink);
+}
+
+.sheet {
+  scroll-margin-top: 96px;
+}
+
+@media (min-width: 900px) {
+  .pen-row {
+    grid-template-columns: 40px minmax(0, 1fr) 172px;
+    gap: 10px 14px;
+  }
+  .pen-sanc {
+    grid-column: 3;
+    grid-row: 1;
+    justify-content: flex-end;
+  }
+}

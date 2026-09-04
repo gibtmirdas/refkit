@@ -5,10 +5,17 @@ import Sheet from "./Sheet";
 import { SIGNALS } from "./signals";
 import { SHEETS, THEMES, type Theme } from "./sheets";
 import { SYSTEMS, SYSTEM_GROUPS, type SystemGroup } from "./systems";
+import {
+  PENALTIES,
+  FAMILIES,
+  SANCTIONS,
+  type Family,
+} from "./penalties";
+import { highlightHtml, highlightNodes } from "./highlight";
 import { usePersisted } from "./usePersisted";
 
 type Side = "front" | "back";
-type Section = "signals" | "sheets" | "systems";
+type Section = "signals" | "sheets" | "systems" | "penalties";
 
 /** Lowercase and accent-free — the search indexes are stored that way. */
 const fold = (s: string) =>
@@ -23,6 +30,9 @@ const THEME_LABEL = Object.fromEntries(
 const GROUP = Object.fromEntries(
   SYSTEM_GROUPS.map((g) => [g.key, g]),
 ) as Record<SystemGroup, (typeof SYSTEM_GROUPS)[number]>;
+const SANCTION = Object.fromEntries(
+  SANCTIONS.map((s) => [s.key, s]),
+) as Record<string, (typeof SANCTIONS)[number]>;
 
 const BASE = import.meta.env.BASE_URL;
 
@@ -89,6 +99,11 @@ const PDFS = [
     label: "Cartes A7",
     hint: "une carte par page",
   },
+  {
+    file: "fiches-arbitre-penalites-A4.pdf",
+    label: "Table des codes",
+    hint: "les 47 infractions, 2 pages A4",
+  },
 ];
 
 export default function App() {
@@ -104,6 +119,9 @@ export default function App() {
   // --- pocket sheets and officiating systems ---
   const [theme, setTheme] = useState<Theme | "all">("all");
   const [group, setGroup] = useState<SystemGroup | "all">("all");
+  const [fam, setFam] = useState<Family | "all">("all");
+  // Fiche a rejoindre depuis un renvoi de la table des infractions.
+  const [jumpTo, setJumpTo] = useState<number | null>(null);
   const [query, setQuery] = useState("");
   const [expandAll, setExpandAll] = useState(false);
   const [toggled, setToggled] = useState<Set<number>>(() => new Set());
@@ -121,6 +139,8 @@ export default function App() {
 
   const onSheets = section === "sheets";
   const onSystems = section === "systems";
+  const onPen = section === "penalties";
+  const onList = onSheets || onSystems || onPen;
   const onCards = onSheets || onSystems;
 
   const visible = useMemo(() => order.map((i) => SIGNALS[i]), [order]);
@@ -148,8 +168,26 @@ export default function App() {
     [group, terms],
   );
 
-  const total = onSystems ? SYSTEMS.length : SHEETS.length;
-  const shown = onSystems ? systems.length : sheets.length;
+  const penalties = useMemo(
+    () =>
+      PENALTIES.filter(
+        (p) =>
+          (fam === "all" || p.fam === fam) &&
+          terms.every((t) => p.search.includes(t)),
+      ),
+    [fam, terms],
+  );
+
+  const total = onPen
+    ? PENALTIES.length
+    : onSystems
+      ? SYSTEMS.length
+      : SHEETS.length;
+  const shown = onPen
+    ? penalties.length
+    : onSystems
+      ? systems.length
+      : sheets.length;
 
   const cols = useColumnCount();
   const sheetCols = useMemo(() => intoColumns(sheets, cols), [sheets, cols]);
@@ -228,14 +266,34 @@ export default function App() {
   }, []);
 
   const goTo = useCallback(
-    (next: Section, filter: Theme | SystemGroup | "all" = "all") => {
+    (
+      next: Section,
+      filter: Theme | SystemGroup | Family | "all" = "all",
+    ) => {
       setSection(next);
       setTheme(next === "sheets" ? (filter as Theme | "all") : "all");
       setGroup(next === "systems" ? (filter as SystemGroup | "all") : "all");
+      setFam(next === "penalties" ? (filter as Family | "all") : "all");
       setQuery("");
       setToggled(new Set());
       setMenuOpen(false);
       window.scrollTo({ top: 0 });
+    },
+    [setSection],
+  );
+
+  /** Renvoi « fiche N » de la table des infractions : ouvrir cette fiche seule. */
+  const openSheet = useCallback(
+    (n: number) => {
+      setSection("sheets");
+      setTheme("all");
+      setGroup("all");
+      setFam("all");
+      setQuery("");
+      setExpandAll(false);
+      setToggled(new Set([n]));
+      setMenuOpen(false);
+      setJumpTo(n);
     },
     [setSection],
   );
@@ -252,13 +310,36 @@ export default function App() {
     const i = hit < n ? hit : 0;
     if (i !== hit) setHit(i);
     paintHit(i, false);
-  }, [terms, section, theme, group, toggled, expandAll, sheets, systems, hit, paintHit]);
+  }, [
+    terms,
+    section,
+    theme,
+    group,
+    fam,
+    toggled,
+    expandAll,
+    sheets,
+    systems,
+    penalties,
+    hit,
+    paintHit,
+  ]);
 
   // Une nouvelle recherche, ou un changement de section ou de filtre, repart
   // de la premiere occurrence.
   useEffect(() => {
     setHit(0);
-  }, [terms, section, theme, group]);
+  }, [terms, section, theme, group, fam]);
+
+  // Rejoint la fiche demandee une fois qu'elle est rendue et ouverte.
+  useEffect(() => {
+    if (jumpTo == null) return;
+    document
+      .getElementById(`sh-${jumpTo}`)
+      ?.closest(".sheet")
+      ?.scrollIntoView({ block: "start", behavior: "smooth" });
+    setJumpTo(null);
+  }, [jumpTo, sheetCols]);
 
   // Close the menu on Escape or on a click outside it.
   useEffect(() => {
@@ -294,7 +375,7 @@ export default function App() {
         }
         return;
       }
-      if (onCards) {
+      if (onList) {
         if (e.key === "/") {
           e.preventDefault();
           searchRef.current?.focus();
@@ -308,7 +389,7 @@ export default function App() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [onCards, shuffle, setSideAll, side, showDesc, setShowDesc, search]);
+  }, [onList, shuffle, setSideAll, side, showDesc, setShowDesc, search]);
 
   return (
     <>
@@ -316,7 +397,11 @@ export default function App() {
       <div className="wrap">
         <header className="top">
           <h1>
-            {onSystems ? (
+            {onPen ? (
+              <>
+                Codes &amp; <em>pénalités</em>
+              </>
+            ) : onSystems ? (
               <>
                 Syst&egrave;mes d’<em>arbitrage</em>
               </>
@@ -331,7 +416,11 @@ export default function App() {
             )}
           </h1>
           <div className="meta">
-            {onSystems ? (
+            {onPen ? (
+              <>
+                Feuille de match SIHF · sanctions <b>2026/27</b>
+              </>
+            ) : onSystems ? (
               <>
                 IIHF Procedure Manual <b>2023</b> · 3 &amp; 4 officiels
               </>
@@ -369,7 +458,13 @@ export default function App() {
                   strokeLinecap="round"
                 />
               </svg>
-              {onSystems ? "Systèmes" : onSheets ? "Fiches" : "Signaux"}
+              {onPen
+                ? "Pénalités"
+                : onSystems
+                  ? "Systèmes"
+                  : onSheets
+                    ? "Fiches"
+                    : "Signaux"}
             </button>
 
             {menuOpen && (
@@ -452,6 +547,32 @@ export default function App() {
                 <div className="menu-sec">
                   <button
                     className="menu-item"
+                    aria-current={onPen && fam === "all"}
+                    onClick={() => goTo("penalties")}
+                  >
+                    <span className="mi-t">Codes &amp; pénalités</span>
+                    <span className="mi-s">
+                      {PENALTIES.length} infractions · code, sanctions, critère
+                    </span>
+                  </button>
+                  <div className="menu-themes">
+                    {FAMILIES.map((f) => (
+                      <button
+                        key={f.key}
+                        className="th-chip th-c"
+                        aria-current={onPen && fam === f.key}
+                        onClick={() => goTo("penalties", f.key)}
+                      >
+                        <span className="dot" />
+                        {f.short}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="menu-sec">
+                  <button
+                    className="menu-item"
                     aria-current={onSystems && group === "all"}
                     onClick={() => goTo("systems")}
                   >
@@ -478,7 +599,7 @@ export default function App() {
             )}
           </div>
 
-          {onCards ? (
+          {onList ? (
             <>
               <label className="find">
                 <svg
@@ -569,6 +690,16 @@ export default function App() {
                   {THEME_LABEL[theme]} ×
                 </button>
               )}
+              {onPen && fam !== "all" && (
+                <button
+                  className="th-chip on th-c"
+                  onClick={() => setFam("all")}
+                  title="Voir toutes les infractions"
+                >
+                  <span className="dot" />
+                  {FAMILIES.find((f) => f.key === fam)?.short} ×
+                </button>
+              )}
               {onSystems && group !== "all" && (
                 <button
                   className={`th-chip on ${GROUP[group].tone}`}
@@ -580,19 +711,23 @@ export default function App() {
                 </button>
               )}
 
-              <button
-                className="tgl"
-                aria-pressed={expandAll}
-                onClick={() => {
-                  setExpandAll(!expandAll);
-                  setToggled(new Set());
-                }}
-                title="Ouvrir toutes les fiches"
-              >
-                Déplier
-              </button>
+              {!onPen && (
+                <button
+                  className="tgl"
+                  aria-pressed={expandAll}
+                  onClick={() => {
+                    setExpandAll(!expandAll);
+                    setToggled(new Set());
+                  }}
+                  title="Ouvrir toutes les fiches"
+                >
+                  Déplier
+                </button>
+              )}
               <span className="tally">
-                {shown === total ? `${total} fiches` : `${shown} / ${total}`}
+                {shown === total
+                  ? `${total} ${onPen ? "infractions" : "fiches"}`
+                  : `${shown} / ${total}`}
               </span>
             </>
           ) : (
@@ -630,7 +765,61 @@ export default function App() {
           )}
         </div>
 
-        {onCards ? (
+        {onPen ? (
+          <>
+            <div className="pen" ref={listRef}>
+              <div className="pen-hd" aria-hidden="true">
+                <span>Code</span>
+                <span>Infraction</span>
+                <span>Sanctions possibles</span>
+              </div>
+              {penalties.map((p) => (
+                <article className="pen-row" key={p.code}>
+                  <span className="pen-code">{p.code}</span>
+                  <div className="pen-main">
+                    <h3 className="pen-fr">{highlightNodes(p.fr, terms)}</h3>
+                    <p className="pen-en">{highlightNodes(p.en, terms)}</p>
+                    <p
+                      className="pen-crit"
+                      dangerouslySetInnerHTML={{
+                        __html: highlightHtml(p.crit, terms),
+                      }}
+                    />
+                    <button
+                      type="button"
+                      className="pen-ref"
+                      onClick={() => openSheet(p.fiche)}
+                      title={`Ouvrir la fiche ${p.fiche} — ${p.ficheTitre}`}
+                    >
+                      fiche {p.fiche} · {p.ficheTitre}
+                    </button>
+                  </div>
+                  <ul className="pen-sanc">
+                    {p.sanctions.map((k) => (
+                      <li key={k} className={SANCTION[k].tone} title={SANCTION[k].label}>
+                        {k === "---" ? "sans" : k}
+                      </li>
+                    ))}
+                  </ul>
+                </article>
+              ))}
+            </div>
+            {shown === 0 && (
+              <p className="empty">
+                <b>Aucune infraction</b> ne correspond à cette recherche.
+              </p>
+            )}
+            <div className="pen-key">
+              <b>Légende</b>
+              {SANCTIONS.map((x) => (
+                <span key={x.key} className="pen-kv">
+                  <i className={x.tone}>{x.key === "---" ? "sans" : x.key}</i>
+                  {x.label}
+                </span>
+              ))}
+            </div>
+          </>
+        ) : onCards ? (
           <>
             <div className="sheets" ref={listRef}>
               {onSystems
