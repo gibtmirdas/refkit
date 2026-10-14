@@ -1053,6 +1053,16 @@ kbd {
   border-radius: 4px;
   background: #f4f5f7; /* the figures are drawn on white: keep a light bed in both themes */
 }
+/* Les schémas du manuel Système à 2 sont dessinés en SVG inline : même lit
+   clair que les figures extraites des manuels IIHF, mais nets à toute taille. */
+.sh-body .fig svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: #f4f5f7;
+}
 .sh-body .fig figcaption {
   margin-top: 5px;
   font-family: 'Barlow Condensed', 'Arial Narrow', Arial, sans-serif;

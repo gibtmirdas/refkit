@@ -5,17 +5,13 @@ import Sheet from "./Sheet";
 import { SIGNALS } from "./signals";
 import { SHEETS, THEMES, type Theme } from "./sheets";
 import { SYSTEMS, SYSTEM_GROUPS, type SystemGroup } from "./systems";
-import {
-  PENALTIES,
-  FAMILIES,
-  SANCTIONS,
-  type Family,
-} from "./penalties";
+import { TWO, TWO_GROUPS, type TwoGroup } from "./system2";
+import { PENALTIES, FAMILIES, SANCTIONS, type Family } from "./penalties";
 import { highlightHtml, highlightNodes } from "./highlight";
 import { usePersisted } from "./usePersisted";
 
 type Side = "front" | "back";
-type Section = "signals" | "sheets" | "systems" | "penalties";
+type Section = "signals" | "sheets" | "systems" | "penalties" | "two";
 
 /** Lowercase and accent-free — the search indexes are stored that way. */
 const fold = (s: string) =>
@@ -30,9 +26,13 @@ const THEME_LABEL = Object.fromEntries(
 const GROUP = Object.fromEntries(
   SYSTEM_GROUPS.map((g) => [g.key, g]),
 ) as Record<SystemGroup, (typeof SYSTEM_GROUPS)[number]>;
-const SANCTION = Object.fromEntries(
-  SANCTIONS.map((s) => [s.key, s]),
-) as Record<string, (typeof SANCTIONS)[number]>;
+const TWO_GROUP = Object.fromEntries(
+  TWO_GROUPS.map((g) => [g.key, g]),
+) as Record<TwoGroup, (typeof TWO_GROUPS)[number]>;
+const SANCTION = Object.fromEntries(SANCTIONS.map((s) => [s.key, s])) as Record<
+  string,
+  (typeof SANCTIONS)[number]
+>;
 
 const BASE = import.meta.env.BASE_URL;
 
@@ -120,6 +120,7 @@ export default function App() {
   const [theme, setTheme] = useState<Theme | "all">("all");
   const [group, setGroup] = useState<SystemGroup | "all">("all");
   const [fam, setFam] = useState<Family | "all">("all");
+  const [twoGroup, setTwoGroup] = useState<TwoGroup | "all">("all");
   const [penDetails, setPenDetails] = usePersisted<boolean>("hs.pendet", true);
   // Fiche a rejoindre depuis un renvoi de la table des infractions.
   const [jumpTo, setJumpTo] = useState<number | null>(null);
@@ -141,8 +142,9 @@ export default function App() {
   const onSheets = section === "sheets";
   const onSystems = section === "systems";
   const onPen = section === "penalties";
-  const onList = onSheets || onSystems || onPen;
-  const onCards = onSheets || onSystems;
+  const onTwo = section === "two";
+  const onList = onSheets || onSystems || onPen || onTwo;
+  const onCards = onSheets || onSystems || onTwo;
 
   const visible = useMemo(() => order.map((i) => SIGNALS[i]), [order]);
 
@@ -169,6 +171,16 @@ export default function App() {
     [group, terms],
   );
 
+  const two = useMemo(
+    () =>
+      TWO.filter(
+        (s) =>
+          (twoGroup === "all" || s.group === twoGroup) &&
+          terms.every((t) => s.search.includes(t)),
+      ),
+    [twoGroup, terms],
+  );
+
   const penalties = useMemo(
     () =>
       PENALTIES.filter(
@@ -181,18 +193,23 @@ export default function App() {
 
   const total = onPen
     ? PENALTIES.length
-    : onSystems
-      ? SYSTEMS.length
-      : SHEETS.length;
+    : onTwo
+      ? TWO.length
+      : onSystems
+        ? SYSTEMS.length
+        : SHEETS.length;
   const shown = onPen
     ? penalties.length
-    : onSystems
-      ? systems.length
-      : sheets.length;
+    : onTwo
+      ? two.length
+      : onSystems
+        ? systems.length
+        : sheets.length;
 
   const cols = useColumnCount();
   const sheetCols = useMemo(() => intoColumns(sheets, cols), [sheets, cols]);
   const systemCols = useMemo(() => intoColumns(systems, cols), [systems, cols]);
+  const twoCols = useMemo(() => intoColumns(two, cols), [two, cols]);
 
   // A search opens every match; like the deck, a tap then toggles against that
   // base rather than setting an absolute state.
@@ -269,12 +286,13 @@ export default function App() {
   const goTo = useCallback(
     (
       next: Section,
-      filter: Theme | SystemGroup | Family | "all" = "all",
+      filter: Theme | SystemGroup | Family | TwoGroup | "all" = "all",
     ) => {
       setSection(next);
       setTheme(next === "sheets" ? (filter as Theme | "all") : "all");
       setGroup(next === "systems" ? (filter as SystemGroup | "all") : "all");
       setFam(next === "penalties" ? (filter as Family | "all") : "all");
+      setTwoGroup(next === "two" ? (filter as TwoGroup | "all") : "all");
       setQuery("");
       setToggled(new Set());
       setMenuOpen(false);
@@ -290,6 +308,7 @@ export default function App() {
       setTheme("all");
       setGroup("all");
       setFam("all");
+      setTwoGroup("all");
       setQuery("");
       setExpandAll(false);
       setToggled(new Set([n]));
@@ -317,10 +336,12 @@ export default function App() {
     theme,
     group,
     fam,
+    twoGroup,
     toggled,
     expandAll,
     sheets,
     systems,
+    two,
     penalties,
     penDetails,
     hit,
@@ -331,7 +352,7 @@ export default function App() {
   // de la premiere occurrence.
   useEffect(() => {
     setHit(0);
-  }, [terms, section, theme, group, fam]);
+  }, [terms, section, theme, group, fam, twoGroup]);
 
   // Rejoint la fiche demandee une fois qu'elle est rendue et ouverte.
   useEffect(() => {
@@ -399,7 +420,11 @@ export default function App() {
       <div className="wrap">
         <header className="top">
           <h1>
-            {onPen ? (
+            {onTwo ? (
+              <>
+                Syst&egrave;me &agrave; <em>2</em>
+              </>
+            ) : onPen ? (
               <>
                 Codes &amp; <em>pénalités</em>
               </>
@@ -418,7 +443,11 @@ export default function App() {
             )}
           </h1>
           <div className="meta">
-            {onPen ? (
+            {onTwo ? (
+              <>
+                Manuel SIHF Officiating · <b>2023</b>
+              </>
+            ) : onPen ? (
               <>
                 Feuille de match SIHF · sanctions <b>2026/27</b>
               </>
@@ -460,13 +489,15 @@ export default function App() {
                   strokeLinecap="round"
                 />
               </svg>
-              {onPen
-                ? "Pénalités"
-                : onSystems
-                  ? "Systèmes"
-                  : onSheets
-                    ? "Fiches"
-                    : "Signaux"}
+              {onTwo
+                ? "Système à 2"
+                : onPen
+                  ? "Pénalités"
+                  : onSystems
+                    ? "Systèmes"
+                    : onSheets
+                      ? "Fiches"
+                      : "Signaux"}
             </button>
 
             {menuOpen && (
@@ -542,6 +573,32 @@ export default function App() {
                         </svg>
                         {p.label}
                       </a>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="menu-sec">
+                  <button
+                    className="menu-item"
+                    aria-current={onTwo && twoGroup === "all"}
+                    onClick={() => goTo("two")}
+                  >
+                    <span className="mi-t">Système à 2</span>
+                    <span className="mi-s">
+                      {TWO.length} fiches · le manuel, du briefing au rapport
+                    </span>
+                  </button>
+                  <div className="menu-themes">
+                    {TWO_GROUPS.map((g) => (
+                      <button
+                        key={g.key}
+                        className={`th-chip ${g.tone}`}
+                        aria-current={onTwo && twoGroup === g.key}
+                        onClick={() => goTo("two", g.key)}
+                      >
+                        <span className="dot" />
+                        {g.short}
+                      </button>
                     ))}
                   </div>
                 </div>
@@ -630,9 +687,13 @@ export default function App() {
                   type="text"
                   value={query}
                   placeholder={
-                    onSystems
-                      ? "Chercher un placement, un rôle…"
-                      : "Chercher une faute, une règle, un code…"
+                    onTwo
+                      ? "Chercher une position, une procédure…"
+                      : onPen
+                        ? "Chercher une faute, un code, une sanction…"
+                        : onSystems
+                          ? "Chercher un placement, un rôle…"
+                          : "Chercher une faute, une règle, un code…"
                   }
                   aria-label="Chercher dans les fiches"
                   autoComplete="off"
@@ -659,7 +720,11 @@ export default function App() {
               </label>
 
               {terms.length > 0 && hits > 0 && (
-                <div className="hits" role="group" aria-label="Occurrences trouvées">
+                <div
+                  className="hits"
+                  role="group"
+                  aria-label="Occurrences trouvées"
+                >
                   <button
                     type="button"
                     onClick={() => goHit(-1)}
@@ -669,7 +734,9 @@ export default function App() {
                     &#8249;
                   </button>
                   <span aria-live="polite">
-                    {hit + 1}<span className="hs-sep">/</span>{hits}
+                    {hit + 1}
+                    <span className="hs-sep">/</span>
+                    {hits}
                   </span>
                   <button
                     type="button"
@@ -690,6 +757,16 @@ export default function App() {
                 >
                   <span className="dot" />
                   {THEME_LABEL[theme]} ×
+                </button>
+              )}
+              {onTwo && twoGroup !== "all" && (
+                <button
+                  className={`th-chip on ${TWO_GROUP[twoGroup].tone}`}
+                  onClick={() => setTwoGroup("all")}
+                  title="Voir toutes les fiches"
+                >
+                  <span className="dot" />
+                  {TWO_GROUP[twoGroup].short} ×
                 </button>
               )}
               {onPen && fam !== "all" && (
@@ -818,7 +895,11 @@ export default function App() {
                   </div>
                   <ul className="pen-sanc">
                     {p.sanctions.map((k) => (
-                      <li key={k} className={SANCTION[k].tone} title={SANCTION[k].label}>
+                      <li
+                        key={k}
+                        className={SANCTION[k].tone}
+                        title={SANCTION[k].label}
+                      >
                         {k === "---" ? "sans" : k}
                       </li>
                     ))}
@@ -844,8 +925,8 @@ export default function App() {
         ) : onCards ? (
           <>
             <div className="sheets" ref={listRef}>
-              {onSystems
-                ? systemCols.map((col, c) => (
+              {onTwo
+                ? twoCols.map((col, c) => (
                     <div className="sh-col" key={c}>
                       {col.map((s) => (
                         <Sheet
@@ -853,10 +934,10 @@ export default function App() {
                           n={s.n}
                           title={s.title}
                           html={s.html}
-                          tone={GROUP[s.group].tone}
-                          domId={`sy-${s.n}`}
-                          footLeft={GROUP[s.group].label}
-                          footRight={`fiche ${s.n} / ${SYSTEMS.length}`}
+                          tone={TWO_GROUP[s.group].tone}
+                          domId={`tw-${s.n}`}
+                          footLeft={TWO_GROUP[s.group].label}
+                          footRight={`fiche ${s.n} / ${TWO.length}`}
                           open={toggled.has(s.n) !== openBase}
                           onToggle={() => toggleCard(s.n)}
                           terms={terms}
@@ -864,31 +945,53 @@ export default function App() {
                       ))}
                     </div>
                   ))
-                : sheetCols.map((col, c) => (
-                    <div className="sh-col" key={c}>
-                      {col.map((s) => (
-                        <Sheet
-                          key={s.n}
-                          n={s.n}
-                          title={s.title}
-                          html={s.html}
-                          tone={`th-${s.theme}`}
-                          domId={`sh-${s.n}`}
-                          footLeft={THEME_LABEL[s.theme]}
-                          footRight={`fiche ${s.n} / ${SHEETS.length}`}
-                          open={toggled.has(s.n) !== openBase}
-                          onToggle={() => toggleCard(s.n)}
-                          terms={terms}
-                        />
-                      ))}
-                    </div>
-                  ))}
+                : onSystems
+                  ? systemCols.map((col, c) => (
+                      <div className="sh-col" key={c}>
+                        {col.map((s) => (
+                          <Sheet
+                            key={s.n}
+                            n={s.n}
+                            title={s.title}
+                            html={s.html}
+                            tone={GROUP[s.group].tone}
+                            domId={`sy-${s.n}`}
+                            footLeft={GROUP[s.group].label}
+                            footRight={`fiche ${s.n} / ${SYSTEMS.length}`}
+                            open={toggled.has(s.n) !== openBase}
+                            onToggle={() => toggleCard(s.n)}
+                            terms={terms}
+                          />
+                        ))}
+                      </div>
+                    ))
+                  : sheetCols.map((col, c) => (
+                      <div className="sh-col" key={c}>
+                        {col.map((s) => (
+                          <Sheet
+                            key={s.n}
+                            n={s.n}
+                            title={s.title}
+                            html={s.html}
+                            tone={`th-${s.theme}`}
+                            domId={`sh-${s.n}`}
+                            footLeft={THEME_LABEL[s.theme]}
+                            footRight={`fiche ${s.n} / ${SHEETS.length}`}
+                            open={toggled.has(s.n) !== openBase}
+                            onToggle={() => toggleCard(s.n)}
+                            terms={terms}
+                          />
+                        ))}
+                      </div>
+                    ))}
             </div>
             {shown === 0 && (
               <p className="none">
-                {onSystems
-                  ? "Aucune fiche. Essaie « icing », « engagement », « zone », « L2 », « wash-out »."
-                  : "Aucune fiche. Essaie « icing », « méconduite », « engagement », ou un numéro de règle."}
+                {onTwo
+                  ? "Aucune fiche. Essaie « BOP », « icing », « no change », « altercation », « rapport »."
+                  : onSystems
+                    ? "Aucune fiche. Essaie « icing », « engagement », « zone », « L2 », « wash-out »."
+                    : "Aucune fiche. Essaie « icing », « méconduite », « engagement », ou un numéro de règle."}
               </p>
             )}
             <p className="hint">
@@ -899,9 +1002,11 @@ export default function App() {
               </span>
             </p>
             <p className="credit">
-              {onSystems
-                ? "IIHF Officiating Procedure Manual — Three Officials System et Four Officials System, v1.0, 05/2023. Résumé en français ; le manuel officiel fait foi."
-                : "Aide-mémoire tiré des cours de base SIHF (« Règles générales », « Autres infractions »), du règlement de jeu SEAF, des directives et aide-mémoires SIHF et du IIHF Official Rule Book 2026/27. En cas de doute, les documents officiels font foi."}
+              {onTwo
+                ? "Manuel Système à 2 — SIHF Formation Officiating, version du 05.09.2023 (Borga, Dufner, Hebeisen, Tscherrig). Résumé ; le manuel officiel fait foi."
+                : onSystems
+                  ? "IIHF Officiating Procedure Manual — Three Officials System et Four Officials System, v1.0, 05/2023. Résumé en français ; le manuel officiel fait foi."
+                  : "Aide-mémoire tiré des cours de base SIHF (« Règles générales », « Autres infractions »), du règlement de jeu SEAF, des directives et aide-mémoires SIHF et du IIHF Official Rule Book 2026/27. En cas de doute, les documents officiels font foi."}
             </p>
           </>
         ) : (

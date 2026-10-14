@@ -4,12 +4,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-`refkit` (RefKit) — a referee PWA with three sections: **Signaux**, a flash-card deck of the 35 official
-signals of Appendix I of the IIHF Official Rule Book 2026/27; **Fiches**, 37 pocket cheat sheets
-(penalties, game rules, procedures, SEAF specifics) taken from the printed A7 deck; and
+`refkit` (RefKit) — a referee PWA with five sections: **Signaux**, a flash-card deck of the 35 official
+signals of Appendix I of the IIHF Official Rule Book 2026/27; **Fiches**, 61 pocket cheat sheets
+(penalties, game rules, procedures, SEAF specifics) taken from the printed A7 deck;
 **Systèmes**, 29 cards summarising the IIHF Officiating Procedure Manuals for the three- and
-four-officials systems (shared ground first, then each system). Where the Swiss basic-course
-modules (NWA ON01 « Règles générales », ON02 « Autres infractions ») differ from the IIHF/SEAF
+four-officials systems (shared ground first, then each system); **Codes & pénalités**, a reference
+table of the 47 infractions by SIHF code; and **Système à 2**, 35 cards from the Swiss
+two-officials manual — the system actually used in most amateur games. Where the Swiss basic-course
+modules (NWA ON01-ON03 and the seven GK P01-P07 présentiel modules) differ from the IIHF/SEAF
 wording, **they win** — the equipment-infraction ladder and the substitute-goalkeeper warm-up
 are the two clearest cases. The pocket sheets are generated from the source cards in the
 HockeyReferee project; inserting a card there means re-running `renumber.py`, which preserves
@@ -34,9 +36,14 @@ To test on a phone on the local network: `npm run preview -- --host`.
 
 ## Architecture
 
-Five source files, three data files, no router and no state library. `App.tsx` holds the current
-section (`hs.section`, persisted) and switches between the deck, the sheets and the systems;
-a collapsible menu in the sticky bar is the only navigation.
+Seven source files, five data files, no router and no state library. `App.tsx` holds the current
+section (`hs.section`, persisted) and switches between the deck, the sheets, the two-officials
+manual, the penalty table and the systems; a collapsible menu in the sticky bar is the only
+navigation. Every card section shares one search box, one `toggled` set and one highlight cursor:
+`Sheet.tsx` wraps matches in `<mark class="hl">` through `highlight.tsx`, and `App.tsx` reads them
+back from the DOM in document order to drive the prev/next arrows. The sheets are laid out in
+explicit columns (`intoColumns`, contiguous slices by rank) rather than CSS multi-column, so a card
+never jumps to another column when one is opened.
 
 - `src/signals.ts` — the whole content model. `Signal` records (rule number, FR/EN name, gesture
   description, `memo`, page, `family`, image filenames) plus the `FAMILIES` filter list. It is
@@ -49,12 +56,27 @@ a collapsible menu in the sticky bar is the only navigation.
   from the source document in the HockeyReferee project — do not hand-edit without carrying the
   change back. The `html` is static generated content and is injected with
   `dangerouslySetInnerHTML`; nothing there comes from user input.
+- `src/system2.ts` — the two-officials manual, same shape as `sheets.ts` but keyed by `group`
+  (`cadre` | `jeu` | `pos` | `lignes` | `gest`), each group carrying its own `th-*` colour. Generated
+  from the source cards in the HockeyReferee project. Its five rink schematics are **inline SVG**
+  inside the generated `html`, not files in `public/` — they stay sharp at any size and need no
+  `@/` resolution. `styles.css` gives `.sh-body .fig svg` the same light bed as the OPM figures.
+- `src/penalties.ts` — the infraction table: one row per SIHF code, with the possible sanctions,
+  a one-line criterion and a cross-reference to the pocket sheet that details it. The cross-reference
+  is written in the source by the sheet's **title** and resolved to a number at generation time, so
+  it survives renumbering; an unknown title fails the build. Rendered as its own view (not `Sheet.tsx`),
+  with a compact/detailed toggle persisted under `hs.pendet`.
 - `src/systems.ts` — the officiating-systems cards, same shape as `sheets.ts` but keyed by
   `group` (`common` | `s3` | `s4`), each group carrying its own colour class. Generated the same
   way. Eight figures cropped from the OPM PDFs live in `public/systems/`; the generated `html`
   references them as `src="@/systems/….png"` and `Sheet.tsx` resolves the `@/` prefix against
   `import.meta.env.BASE_URL`, so the deployed base path is never baked into the data.
-- `src/Sheet.tsx` — presentational card used by **both** the sheets and the systems: coloured
+- `src/highlight.tsx` — search highlighting. `foldSame` folds character by character so the index
+  of a match in the folded text is also its index in the displayed text; `highlightHtml` walks a
+  generated fragment and only ever touches text outside `<…>`, skipping matches that would land
+  inside an HTML entity. `highlightNodes` does the same for a plain-text title, as React nodes.
+- `src/Sheet.tsx` — presentational card used by the sheets, the systems and the two-officials
+  manual: coloured
   header button, body, footer. Takes `tone` (a `th-*` colour class), `domId` and the two footer
   labels; the open state is owned by `App.tsx`.
 - `src/App.tsx` — all state. Deck: card `order` (an index permutation into `SIGNALS`), the global
